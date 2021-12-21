@@ -1,20 +1,27 @@
+import { i18n } from "../i18n/i18n";
 
 export const PostHeaders = {
   "Content-Type": "application/json"
 };
 
-function requestBad(url: string, params: any) {
+function requestBad(url: string, params: any, e: any) {
 
 }
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, init);
+  const responseBodyText = await response.text();
+  
+  let responseBodyParsed;
+  try {
+    responseBodyParsed = JSON.parse(responseBodyText);
+  } catch (e) {
+    throw new Error(i18n`解析JSON失败，${e}`)
+  }
 
   try {
-    const responseBodyText = await response.text();
-    const responseBodyParsed = JSON.parse(responseBodyText);
     if (response.status === 200) {
-      if ((responseBodyParsed as any).success) {
+      if ((responseBodyParsed as any).ok) {
         const data = responseBodyParsed.data;
         if (data !== undefined) {
           return data;
@@ -24,8 +31,7 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
     requestBad(url, init);
     throw new Error("错误的状态")
   } catch (e) {
-    requestBad(url, init);
-    throw e;
+    throw requestBad(url, init, e);
   }
 }
 
