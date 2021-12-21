@@ -1,4 +1,4 @@
-import { i18n } from "../i18n/i18n";
+import { i18n, i18nError } from "../i18n/i18n";
 
 export const PostHeaders = {
   "Content-Type": "application/json"
@@ -16,7 +16,7 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   try {
     responseBodyParsed = JSON.parse(responseBodyText);
   } catch (e) {
-    throw new Error(i18n`解析JSON失败，${e}`)
+    throw i18nError("解析JSON失败，原始值：{}，错误信息：{}", responseBodyText, e);
   }
 
   try {
