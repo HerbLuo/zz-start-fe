@@ -23,7 +23,7 @@ interface ShowWarnAndLog {
 export const showWarnAndLog: ShowWarnAndLog = async (alert: I18nString, ...args: any[]): Promise<Error> => {
     const id = nextId();
     console.log(id);
-    logger.warn("[WARN]")
+    logger.warn("[WARN]", args);
     await showDialog(alert + "id: " + id);
     return TippedError;
 }
