@@ -49,9 +49,14 @@ const log = (level: Level) => (...msgs: any[]) => {
     return toString(msg);
   }).join(", ")}`;
 
-  for (const callback of callbacks) {
-    callback(msgStr);
-  }
+  if (callbacks.length <= 1) {
+    console.warn("please use `onLog` to register log receiver, e.g. `onLog(console.log);`.");
+    console.log(msgStr);
+  } else {
+    for (const callback of callbacks) {
+      callback(msgStr);
+    }
+  } 
 };
 
 export const logger = {
@@ -101,7 +106,7 @@ async function initDb() {
 }
 
 // 实时输出日志
-export function onLog(callback: (log: string) => void) {
+export function onLog(callback: (log: string) => void) { 
   callbacks.push(callback);
 }
 export function removeOnLog(callback: any) {
@@ -132,17 +137,19 @@ async function main() {
   for (const log of logsBeforeInitted) {
     db.logsStore.add({session: sessionTime, data: log});
   }
-  // 开始节流回调
-  setInterval(async () => {
-    const iter = cursorQueryAndDelete<LogData>(db.logsStore);
-    const data: string[] = [];
-    for await (const it of iter) {
-      data.push(it.data);
-    }
-    for (const callback of throttledCallbacks) {
-      callback(data);
-    }
-  }, throttedDuration);
+  if (throttledCallbacks.length > 0) {
+    // 开始节流回调
+    setInterval(async () => {
+      const iter = cursorQueryAndDelete<LogData>(db.logsStore);
+      const data: string[] = [];
+      for await (const it of iter) {
+        data.push(it.data);
+      }
+      for (const callback of throttledCallbacks) {
+        callback(data);
+      }
+    }, throttedDuration);
+  } 
 }
 // 执行主逻辑（将日志信息存放于indexedDB中），注意必须将这里的异常捕获，不然有无限递归的风险
 main().catch(console.error);
@@ -156,6 +163,9 @@ window.addEventListener("unhandledrejection", e => {
 
 // 将上次访问未发送的日志发送并清空
 setTimeout(async () => {
+  if (!throttledCallbacks.length) {
+    return;
+  }
   const db = await initDb();
   const store = db.logsStore.index("session");
   const rangeA = IDBKeyRange.upperBound(sessionTime, true);
@@ -165,7 +175,7 @@ setTimeout(async () => {
   for await (const val of resultIter) {
     logs.push(val.data);
   }
-  
+   
   for (const callback of throttledCallbacks) {
     callback(logs);
   }

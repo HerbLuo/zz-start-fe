@@ -32,7 +32,7 @@ export function nextId(len: number = 16, ...withSymbols: string[]): string {
 }
 
 function ss4(...withSymbols: string[]): string {
-    const randomNum = ((Math.random() + 1) * ((CHARSET62.length + withSymbols.length) ** 4 - 1));
+    const randomNum = Math.floor(((Math.random() + 1) * ((CHARSET62.length + withSymbols.length) ** 4 - 1)));
     return baseXXEncodeReversed(randomNum, ...withSymbols).reverse().join("");
 }
 
@@ -62,10 +62,10 @@ function baseXXEncodeReversed(num: number, ...withSymbols: string[]): string[] {
         } else {
             chars.push(withSymbols[index - charset62len]);
         }
-        remainder /= totalLen;
+        remainder = Math.floor(remainder / totalLen);
     }
     return chars;
 }
 
 const BAD_STR_REG = new RegExp("IlO04");
-const CHARSET62 = [..."0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+const CHARSET62 = [...("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" as string)];

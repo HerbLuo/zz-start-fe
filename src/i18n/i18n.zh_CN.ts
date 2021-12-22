@@ -1,5 +1,5 @@
-import { configI18n } from "./i18n.core";
-import { I18nConfig } from "./i18n.core.type";
+import { configI18n } from "./core";
+import { I18nConfig } from "./core-type";
 
 const i18n: I18nConfig = {
   "Failed to parse JSON, the network may be unstable, try to refresh.": "解析JSON失败，可能是网络不稳定，尝试刷新。",

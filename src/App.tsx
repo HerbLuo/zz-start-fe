@@ -4,7 +4,10 @@ import Loading from "./pages/loading";
 
 function LazyPage({ page }: { page?: string }) {
   const params = useParams();
-  const Page = lazy(() => import(`./pages/${page || params.page}/index.tsx`));
+  const Page = lazy(() => import(
+    /* webpackChunkName: "[request]" */
+    `./pages/${page || params.page}/index.tsx`
+  ));
 
   return (
     <Suspense fallback={<Loading/>}>

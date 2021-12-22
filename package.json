@@ -15,9 +15,11 @@
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
+    "tslib": "^2.3.1",
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },
+  "proxy": "http://localhost:8880",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
