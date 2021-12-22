@@ -1,6 +1,3 @@
-import { useLocale } from "./i18n.core";
-import { I18nMessages } from "./i18n.core.type";
+import { createI18n } from "./i18n.core";
 
-export const i18n = useLocale("zh_CN");
-
-export const i18nError = (message: I18nMessages, ...args: any[]) => new Error(i18n(message));
+export const i18n = createI18n("zh_CN");
