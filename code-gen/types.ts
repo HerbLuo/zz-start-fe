@@ -17,18 +17,25 @@ export interface SwaggerDoc {
   tags: SwaggerTag[];
 }
 
-export interface SwaggerDefinition {
-  "type": "object",
-  "properties": {
-    "prefetch": {
-      "type": "integer",
-      "format": "int32"
-    }
-  },
-  "title": "Async«SysSearchQueryRes»"
+export type SwaggerType = "object" | "string" | "integer" | "number" | "boolean" | "array";
+export type SwaggerFormat = "int64" | "date-time" | "int32";
+
+export interface SwaggerProperty {
+  type?: SwaggerType;
+  format?: string;
+  items?: SwaggerProperty;
+  additionalProperties?: SwaggerProperty;
+  $ref?: string;
 }
 
-export type SwaggerMethods = "post" | "get" | "put" | "patch" | "delete" | "op";
+export interface SwaggerDefinition {
+  type: SwaggerType;
+  properties: Record<string, SwaggerProperty>;
+  title: string;
+  required: string[];
+}
+
+export type SwaggerMethods = "post" | "get" | "put" | "patch" | "delete" | "options";
 
 export interface SwaggerTag {
   name: string;
