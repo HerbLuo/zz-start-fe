@@ -26,6 +26,7 @@ class JsType {
 type ToJsTypeFun = (property: SwaggerProperty) => false | JsType;
 
 const PromiseReg = /^Promise«([^«»]+»)$/;
+const AsyncReg = /^Async«([^«»]+»)$/;
 
 const toJsTypeDefinitionArray: Array<
   [SwaggerType, string] | 
@@ -145,7 +146,9 @@ function resolveType(definitions: Record<string, SwaggerDefinition>) {
     const properties: JsBeanProperties[] = definitionPropertiesEntries.map(([key, value]) => {
       const jsType = toJsType(value);
       for (const ref of jsType.refs) {
-        refs.add(ref);
+        if (ref !== typeName) {
+          refs.add(ref);
+        }
       }
       return {
         property: key,
@@ -168,7 +171,10 @@ async function main() {
   const parsedDefinitions = resolveType(definitions);
 
   for (const { typeName, properties, refs } of parsedDefinitions) {
-    if (typeName.match(PromiseReg)) {
+    if (typeName.match(PromiseReg) || typeName.match(AsyncReg)) {
+      continue;
+    }
+    if (["LocalTime", "Timestamp"].includes(typeName)) {
       continue;
     }
 
