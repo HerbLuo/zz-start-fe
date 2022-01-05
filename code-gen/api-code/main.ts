@@ -14,7 +14,19 @@ if (!fs.existsSync(srcDir)) {
 }
 fs.ensureDirSync(srcDirType);
 
-type ToJsTypeFun = (property: SwaggerProperty) => string | false;
+class JsType {
+  constructor(public readonly type: string, public readonly refs: readonly string[] = []) {
+  }
+
+  public mapType(fn: (type: string) => string): JsType {
+    return new JsType(fn(this.type), this.refs);
+  }
+}
+
+type ToJsTypeFun = (property: SwaggerProperty) => false | JsType;
+
+const PromiseReg = /^Promise«([^«»]+»)$/;
+
 const toJsTypeDefinitionArray: Array<
   [SwaggerType, string] | 
   [SwaggerType, SwaggerFormat, string] | 
@@ -26,8 +38,8 @@ const toJsTypeDefinitionArray: Array<
   ["number", "number"],
   ["string", "date-time", "Date"],
   ["string", "string"],
-  ["array", (property: SwaggerProperty) => property.items ? `Array<${toJsType(property.items)}>` : "unknown"],
-  ["object", (property: SwaggerProperty) => property.additionalProperties ? `Record<string, ${toJsType(property.additionalProperties)}>` : false],
+  ["array", (property: SwaggerProperty) => property.items ? toJsType(property.items).mapType(type => `Array<${type}>`) : new JsType("unknown")],
+  ["object", (property: SwaggerProperty) => property.additionalProperties ? toJsType(property.additionalProperties).mapType(type => `Record<string, ${type}>`) : false],
   ["object", "any"],
   [(property: SwaggerProperty) => {
     const ref = property.$ref;
@@ -35,18 +47,31 @@ const toJsTypeDefinitionArray: Array<
       return false;
     }
     const type = ref.split("/").pop();
-    switch (type) {
-      case "Timestamp":
-        return "number";
-      case "LocalTime":
-        return "string";
-      default:
-        return type?.replace(/«/g, "<").replace(/»/g, ">") || "unknown";
+
+    if (!type) {
+      return new JsType("unknown");
     }
-  }]
+    const simpleTypeMap: Record<string, string> = {
+      Timestamp: "number",
+      LocalTime: "string",
+    }
+    const jsType = simpleTypeMap[type]
+    if (jsType) {
+      return new JsType(jsType);
+    }
+
+    const promiseTypeMatched = type?.match(PromiseReg);
+    if (promiseTypeMatched) {
+      return new JsType("Promise<unknown>");
+    }
+    if (!type) {
+      return new JsType("unknown");
+    }
+    return new JsType(type, [type]);
+  }],
 ];
 
-function toJsType(property: SwaggerProperty): string {
+function toJsType(property: SwaggerProperty): JsType {
   let resJsType;
   for (const toJsTypeDefinition of toJsTypeDefinitionArray) {
     const len = toJsTypeDefinition.length;
@@ -92,6 +117,9 @@ function toJsType(property: SwaggerProperty): string {
   if (resJsType === "unknown") {
     console.warn("[warn] unknown js type", property);
   }
+  if (typeof resJsType === "string") {
+    resJsType = new JsType(resJsType);
+  }
   return resJsType;
 }
 
@@ -104,6 +132,7 @@ interface JsBeanProperties {
 interface ParsedDefinition {
   typeName: string;
   properties: JsBeanProperties[];
+  refs: string[];
 }
 
 // util functions
@@ -112,15 +141,21 @@ function resolveType(definitions: Record<string, SwaggerDefinition>) {
   const definitionEntries = Object.entries(definitions);
   for (const [typeName, definition] of definitionEntries) {
     const definitionPropertiesEntries = Object.entries(definition.properties);
+    const refs: Set<string> = new Set<string>();
     const properties: JsBeanProperties[] = definitionPropertiesEntries.map(([key, value]) => {
+      const jsType = toJsType(value);
+      for (const ref of jsType.refs) {
+        refs.add(ref);
+      }
       return {
         property: key,
-        type: toJsType(value),
+        type: jsType.type,
       };
     });
     parsedDefinitions.push({
       typeName,
       properties,
+      refs: [...refs]
     });
   }
   return parsedDefinitions;
@@ -132,12 +167,19 @@ async function main() {
   const definitions = swagger.definitions;
   const parsedDefinitions = resolveType(definitions);
 
-  for (const { typeName, properties } of parsedDefinitions) {
+  for (const { typeName, properties, refs } of parsedDefinitions) {
+    if (typeName.match(PromiseReg)) {
+      continue;
+    }
+
     const typeFileContent = trim_margin(
       `
         // 该文件由 ZZ-CODE-GEN 管理，不要尝试改变它。
         // 该文件的 HASH值为 ##， 
         // 如果你修改了该文件，会使它断开与 ZZ-CODE-GEN 的关联，即下次生成文件的时候，不会更新该文件
+        ${refs.map(ref => `import { ${ref} } from "./${ref}";`).join(`
+        `)}${refs.length > 0 ? `
+        ` : ""}
         export interface ${typeName} {
           ${properties.map((property) => `${property.property}: ${property.type};`).join(`
           `)}

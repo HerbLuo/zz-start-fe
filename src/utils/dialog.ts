@@ -2,7 +2,7 @@ import { nextId } from "./random";
 import { I18nString } from "../i18n/core-type";
 import { defer } from "./defer";
 import { logger } from "./logger";
-import {TippedError} from "./errors";
+import { TippedError } from "./errors";
 
 export function showDialog(message: string): Promise<void> {
     const dialogClosedPromiseDefer = defer<void>();
