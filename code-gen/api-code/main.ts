@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as fs from "fs-extra";
 import fetch from "node-fetch";
+import { createHash } from "crypto";
 import { SwaggerDefinition, SwaggerDoc, SwaggerFormat, SwaggerProperty, SwaggerType } from "../types";
 import { trim_margin } from "../utils/trim_margin";
 
@@ -27,6 +28,7 @@ type ToJsTypeFun = (property: SwaggerProperty) => false | JsType;
 
 const PromiseReg = /^Promise«([^«»]+»)$/;
 const AsyncReg = /^Async«([^«»]+»)$/;
+const HashReg = /(###H#A#S#H###)(.+)(###H#A#S#H###)/;
 
 const toJsTypeDefinitionArray: Array<
   [SwaggerType, string] | 
@@ -181,7 +183,7 @@ async function main() {
     const typeFileContent = trim_margin(
       `
         // 该文件由 ZZ-CODE-GEN 管理，不要尝试改变它。
-        // 该文件的 HASH值为 ##， 
+        // 该文件的 HASH值为 ###H#A#S#H### ###H#A#S#H###， 
         // 如果你修改了该文件，会使它断开与 ZZ-CODE-GEN 的关联，即下次生成文件的时候，不会更新该文件
         ${refs.map(ref => `import { ${ref} } from "./${ref}";`).join(`
         `)}${refs.length > 0 ? `
@@ -192,7 +194,13 @@ async function main() {
         }
       `
     ) + "\n";
-    fs.writeFileSync(path.resolve(srcDirType, typeName + ".ts"), typeFileContent);
+
+    const hasher = createHash("sha256");
+    hasher.update(typeFileContent.replace(HashReg, "").trim());
+    const sha256 = hasher.digest("hex");
+
+    const typeFileContentWithHash = typeFileContent.replace(HashReg, `$1${sha256}$3`);
+    fs.writeFileSync(path.resolve(srcDirType, typeName + ".ts"), typeFileContentWithHash);
   }
 }
 
