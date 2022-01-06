@@ -30,7 +30,7 @@ type ToJsTypeFun = (property: SwaggerProperty) => false | JsType;
 
 const PromiseReg = /^Promise«(.+)»$/;
 const AsyncReg = /^Async«(.+)»$/;
-const HashReg = /(###H#A#S#H###)(.+)(###H#A#S#H###)/;
+const HashReg = /(###HASH###<)([^<>]+)(>###HASH###)/;
 
 const javaPlainTypeMapJsPlainType: Record<string, string> = {
   int: "number",
@@ -216,7 +216,7 @@ async function main() {
     const typeFileContent = trim_margin(
       `
         // 该文件由 ZZ-CODE-GEN 管理，不要尝试改变它。
-        // 该文件的 HASH值为 ###H#A#S#H### ###H#A#S#H###， 
+        // 该文件的 HASH值为 ###HASH###< >###HASH###， 
         // 如果你修改了该文件，下次执行"code gen"操作时，不会更新该文件
         ${refs.map(ref => `import { ${ref} } from "./${ref}";`).join(`
         `)}${refs.length > 0 ? `
