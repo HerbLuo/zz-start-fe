@@ -2,12 +2,12 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import fetch from "node-fetch";
 import { createHash } from "crypto";
-import { SwaggerDefinition, SwaggerDoc, SwaggerFormat, SwaggerProperty, SwaggerType } from "../types";
+import { SwaggerDefinition, SwaggerDoc, SwaggerFormat, SwaggerProperty, SwaggerType } from "./types";
 import { trim_margin } from "../utils/trim_margin";
 
 const url = "http://127.0.0.1:8880/v2/api-docs";
 const srcDir = path.resolve(__dirname, "../../src/");
-const srcDirType = path.resolve(srcDir, "types")
+const srcDirType = path.resolve(srcDir, "types");
 
 // init
 if (!fs.existsSync(srcDir)) {
@@ -24,24 +24,47 @@ class JsType {
   }
 }
 
+const UnknownType = new JsType("unknown");
+
 type ToJsTypeFun = (property: SwaggerProperty) => false | JsType;
 
-const PromiseReg = /^Promise«([^«»]+»)$/;
-const AsyncReg = /^Async«([^«»]+»)$/;
+const PromiseReg = /^Promise«(.+)»$/;
+const AsyncReg = /^Async«(.+)»$/;
 const HashReg = /(###H#A#S#H###)(.+)(###H#A#S#H###)/;
 
-const toJsTypeDefinitionArray: Array<
-  [SwaggerType, string] | 
-  [SwaggerType, SwaggerFormat, string] | 
+const javaPlainTypeMapJsPlainType: Record<string, string> = {
+  int: "number",
+  Integer: "number",
+  boolean: "boolean",
+  Boolean: "boolean",
+  char: "string",
+  Character: "string",
+  byte: "string",
+  Byte: "string",
+  short: "number",
+  Short: "number",
+  float: "number",
+  Float: "number",
+  long: "number",
+  Long: "number",
+  double: "number",
+  Double: "number",
+  void: "void",
+  Void: "void",
+  Map: "Record",
+};
+
+const toJsTypeDefinitionArray: Array<[SwaggerType, string] |
+  [SwaggerType, SwaggerFormat, string] |
   [SwaggerType, ToJsTypeFun] |
-  [ToJsTypeFun]
-> = [
-  ["boolean", "boolean"],
+  [ToJsTypeFun]> = [
   ["integer", "number"],
+  ["boolean", "boolean"],
   ["number", "number"],
+  ["string", "date", "Date"],
   ["string", "date-time", "Date"],
   ["string", "string"],
-  ["array", (property: SwaggerProperty) => property.items ? toJsType(property.items).mapType(type => `Array<${type}>`) : new JsType("unknown")],
+  ["array", (property: SwaggerProperty) => property.items ? toJsType(property.items).mapType(type => `Array<${type}>`) : UnknownType],
   ["object", (property: SwaggerProperty) => property.additionalProperties ? toJsType(property.additionalProperties).mapType(type => `Record<string, ${type}>`) : false],
   ["object", "any"],
   [(property: SwaggerProperty) => {
@@ -52,23 +75,29 @@ const toJsTypeDefinitionArray: Array<
     const type = ref.split("/").pop();
 
     if (!type) {
-      return new JsType("unknown");
+      return UnknownType;
     }
     const simpleTypeMap: Record<string, string> = {
       Timestamp: "number",
       LocalTime: "string",
-    }
-    const jsType = simpleTypeMap[type]
+    };
+    const jsType = simpleTypeMap[type];
     if (jsType) {
       return new JsType(jsType);
     }
 
-    const promiseTypeMatched = type?.match(PromiseReg);
+    const promiseTypeMatched = type.match(PromiseReg);
     if (promiseTypeMatched) {
-      return new JsType("Promise<unknown>");
+      let promiseInferType = promiseTypeMatched[1];
+      promiseInferType = promiseInferType
+        .replace(/([^,«»]+)/g, (s) => javaPlainTypeMapJsPlainType[s] || s)
+        .replace(/«/g, "<")
+        .replace(/»/g, ">")
+        .replace(/,/g, ", ");
+      return new JsType(`Promise<${promiseInferType}>`);
     }
     if (!type) {
-      return new JsType("unknown");
+      return UnknownType;
     }
     return new JsType(type, [type]);
   }],
@@ -102,7 +131,7 @@ function toJsType(property: SwaggerProperty): JsType {
             break;
           }
         }
-      } 
+      }
     }
     if (len === 3) {
       const type: string = first as any;
@@ -123,6 +152,7 @@ function toJsType(property: SwaggerProperty): JsType {
   if (typeof resJsType === "string") {
     resJsType = new JsType(resJsType);
   }
+  resJsType = resJsType.mapType(type => type.replace(/Array<([^<>]+)>/g, "$1[]"));
   return resJsType;
 }
 
@@ -152,6 +182,9 @@ function resolveType(definitions: Record<string, SwaggerDefinition>) {
           refs.add(ref);
         }
       }
+      if (!key.match(/^[0-9a-zA-Z_$]+$/)) {
+        key = `"${key.replace(/"/g, "\\\"")}"`;
+      }
       return {
         property: key,
         type: jsType.type,
@@ -172,7 +205,7 @@ async function main() {
   const definitions = swagger.definitions;
   const parsedDefinitions = resolveType(definitions);
 
-  for (const { typeName, properties, refs } of parsedDefinitions) {
+  for (const {typeName, properties, refs} of parsedDefinitions) {
     if (typeName.match(PromiseReg) || typeName.match(AsyncReg)) {
       continue;
     }
@@ -184,7 +217,7 @@ async function main() {
       `
         // 该文件由 ZZ-CODE-GEN 管理，不要尝试改变它。
         // 该文件的 HASH值为 ###H#A#S#H### ###H#A#S#H###， 
-        // 如果你修改了该文件，会使它断开与 ZZ-CODE-GEN 的关联，即下次生成文件的时候，不会更新该文件
+        // 如果你修改了该文件，下次执行"code gen"操作时，不会更新该文件
         ${refs.map(ref => `import { ${ref} } from "./${ref}";`).join(`
         `)}${refs.length > 0 ? `
         ` : ""}
@@ -196,7 +229,7 @@ async function main() {
     ) + "\n";
 
     const hasher = createHash("sha256");
-    hasher.update(typeFileContent.replace(HashReg, "").trim());
+    hasher.update(typeFileContent.replace(HashReg, "").trim().replace(/\r\n/g, "\n"));
     const sha256 = hasher.digest("hex");
 
     const typeFileContentWithHash = typeFileContent.replace(HashReg, `$1${sha256}$3`);

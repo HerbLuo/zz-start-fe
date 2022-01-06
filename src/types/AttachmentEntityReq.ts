@@ -1,6 +1,6 @@
 // 该文件由 ZZ-CODE-GEN 管理，不要尝试改变它。
-// 该文件的 HASH值为 ###H#A#S#H###d95b3a25226277167a9c06ee41d6f4da5164c786524c60678b34528111b598fc###H#A#S#H###， 
-// 如果你修改了该文件，会使它断开与 ZZ-CODE-GEN 的关联，即下次生成文件的时候，不会更新该文件
+// 该文件的 HASH值为 ###H#A#S#H###78f4ce9f6c7b5e83da1728a948ffb9a7877002ed4f5fa06ae8f6d9f4ae357bcd###H#A#S#H###， 
+// 如果你修改了该文件，下次执行"code gen"操作时，不会更新该文件
 
 export interface AttachmentEntityReq {
   business: string;
