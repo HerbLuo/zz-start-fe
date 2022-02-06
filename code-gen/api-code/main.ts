@@ -2,12 +2,14 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import fetch from "node-fetch";
 import { createHash } from "crypto";
-import { SwaggerDefinition, SwaggerDoc, SwaggerFormat, SwaggerProperty, SwaggerType } from "./types";
+import { ApiPathWithInfo, SwaggerDefinition, SwaggerDoc, SwaggerFormat, SwaggerPath, SwaggerProperty, SwaggerType } from "./types";
 import { trim_margin } from "../utils/trim_margin";
+import { apiTemplate } from "./api.template";
 
 const url = "http://127.0.0.1:8880/v2/api-docs";
 const srcDir = path.resolve(__dirname, "../../src/");
 const srcDirType = path.resolve(srcDir, "types");
+const srcDirApi = path.resolve(srcDir, "api");
 
 // init
 if (!fs.existsSync(srcDir)) {
@@ -15,146 +17,9 @@ if (!fs.existsSync(srcDir)) {
 }
 fs.ensureDirSync(srcDirType);
 
-class JsType {
-  constructor(public readonly type: string, public readonly refs: readonly string[] = []) {
-  }
 
-  public mapType(fn: (type: string) => string): JsType {
-    return new JsType(fn(this.type), this.refs);
-  }
-}
-
-const UnknownType = new JsType("unknown");
-
-type ToJsTypeFun = (property: SwaggerProperty) => false | JsType;
-
-const PromiseReg = /^Promise«(.+)»$/;
 const AsyncReg = /^Async«(.+)»$/;
 const HashReg = /(###HASH###<)([^<>]+)(>###HASH###)/;
-
-const javaPlainTypeMapJsPlainType: Record<string, string> = {
-  int: "number",
-  Integer: "number",
-  boolean: "boolean",
-  Boolean: "boolean",
-  char: "string",
-  Character: "string",
-  byte: "string",
-  Byte: "string",
-  short: "number",
-  Short: "number",
-  float: "number",
-  Float: "number",
-  long: "number",
-  Long: "number",
-  double: "number",
-  Double: "number",
-  void: "void",
-  Void: "void",
-  Map: "Record",
-};
-
-const toJsTypeDefinitionArray: Array<[SwaggerType, string] |
-  [SwaggerType, SwaggerFormat, string] |
-  [SwaggerType, ToJsTypeFun] |
-  [ToJsTypeFun]> = [
-  ["integer", "number"],
-  ["boolean", "boolean"],
-  ["number", "number"],
-  ["string", "date", "Date"],
-  ["string", "date-time", "Date"],
-  ["string", "string"],
-  ["array", (property: SwaggerProperty) => property.items ? toJsType(property.items).mapType(type => `Array<${type}>`) : UnknownType],
-  ["object", (property: SwaggerProperty) => property.additionalProperties ? toJsType(property.additionalProperties).mapType(type => `Record<string, ${type}>`) : false],
-  ["object", "any"],
-  [(property: SwaggerProperty) => {
-    const ref = property.$ref;
-    if (!ref) {
-      return false;
-    }
-    const type = ref.split("/").pop();
-
-    if (!type) {
-      return UnknownType;
-    }
-    const simpleTypeMap: Record<string, string> = {
-      Timestamp: "number",
-      LocalTime: "string",
-    };
-    const jsType = simpleTypeMap[type];
-    if (jsType) {
-      return new JsType(jsType);
-    }
-
-    const promiseTypeMatched = type.match(PromiseReg);
-    if (promiseTypeMatched) {
-      let promiseInferType = promiseTypeMatched[1];
-      promiseInferType = promiseInferType
-        .replace(/([^,«»]+)/g, (s) => javaPlainTypeMapJsPlainType[s] || s)
-        .replace(/«/g, "<")
-        .replace(/»/g, ">")
-        .replace(/,/g, ", ");
-      return new JsType(`Promise<${promiseInferType}>`);
-    }
-    if (!type) {
-      return UnknownType;
-    }
-    return new JsType(type, [type]);
-  }],
-];
-
-function toJsType(property: SwaggerProperty): JsType {
-  let resJsType;
-  for (const toJsTypeDefinition of toJsTypeDefinitionArray) {
-    const len = toJsTypeDefinition.length;
-    const first = toJsTypeDefinition[0];
-    const second = toJsTypeDefinition[1];
-    const third = toJsTypeDefinition[2];
-
-    if (len === 1) {
-      const simpleToJsFunc: ToJsTypeFun = first as any;
-      resJsType = simpleToJsFunc(property);
-      if (resJsType !== false) {
-        break;
-      }
-    }
-    if (len === 2) {
-      const type: string = first as any;
-      if (type === property.type) {
-        if (typeof second === "string") {
-          resJsType = second;
-          break;
-        } else {
-          const simpleToJsFunc: ToJsTypeFun = second as any;
-          resJsType = simpleToJsFunc(property);
-          if (resJsType !== false) {
-            break;
-          }
-        }
-      }
-    }
-    if (len === 3) {
-      const type: string = first as any;
-      const format: string = second as any;
-      const jsType: string = third as any;
-      if (type === property.type && format === property.format) {
-        resJsType = jsType;
-        break;
-      }
-    }
-  }
-  if (!resJsType) {
-    resJsType = "unknown";
-  }
-  if (resJsType === "unknown") {
-    console.warn("[warn] unknown js type", property);
-  }
-  if (typeof resJsType === "string") {
-    resJsType = new JsType(resJsType);
-  }
-  resJsType = resJsType.mapType(type => type.replace(/Array<([^<>]+)>/g, "$1[]"));
-  return resJsType;
-}
 
 // interfaces
 interface JsBeanProperties {
@@ -202,6 +67,8 @@ function resolveType(definitions: Record<string, SwaggerDefinition>) {
 // main
 async function main() {
   const swagger: SwaggerDoc = await fetch(url).then(r => r.json());
+
+  // 生成类型定义
   const definitions = swagger.definitions;
   const parsedDefinitions = resolveType(definitions);
 
@@ -234,6 +101,32 @@ async function main() {
 
     const typeFileContentWithHash = typeFileContent.replace(HashReg, `$1${sha256}$3`);
     fs.writeFileSync(path.resolve(srcDirType, typeName + ".ts"), typeFileContentWithHash);
+  }
+
+  // 
+  // 生成 Api 接口
+  const paths = swagger.paths;
+
+  const apiInfosGrouped: Record<string, ApiPathWithInfo[]> = {};
+
+  for (const [path, methodWithPath] of Object.entries(paths)) {
+    for (const [method, pathInfo] of Object.entries(methodWithPath)) {
+      const tag = pathInfo.tags.find(tag => tag.startsWith("group(") && tag.endsWith(")"));
+      if (!tag) {
+        console.warn("找不到接口所在组");
+        continue;
+      }
+      const group = tag.substring(6, tag.length - 1).replace(/-controller$/, "-api");
+      const apiInfos = apiInfosGrouped[group] ||= [];
+      apiInfos.push({ path, method: method === "delete" ? "del" : method, info: pathInfo });
+    }
+  }
+
+  const apiInfoGroupedEntries = Object.entries(apiInfosGrouped);
+  for (const [group, pathAndInfos] of apiInfoGroupedEntries) {
+    const fileContent = apiTemplate(group, pathAndInfos);
+
+    fs.writeFileSync(path.resolve(srcDirApi, group + ".ts"), fileContent);
   }
 }
 

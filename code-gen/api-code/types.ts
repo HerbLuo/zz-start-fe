@@ -37,6 +37,7 @@ export interface SwaggerParameter {
   name: string;
   description: string;
   required: boolean;
+  type: string;
   schema: {
     $ref: string;
   };
@@ -57,4 +58,9 @@ export interface SwaggerPath {
   produces: string[];
   parameters: SwaggerParameter[];
   responses: Record<"200" | "201" | "401" | "403" | "404", SwaggerResponse>;
+}
+export interface ApiPathWithInfo { 
+  path: string;
+  method: string;
+  info: SwaggerPath;
 }
