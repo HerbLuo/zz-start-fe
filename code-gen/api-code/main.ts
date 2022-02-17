@@ -5,6 +5,7 @@ import { createHash } from "crypto";
 import { ApiPathWithInfo, SwaggerDefinition, SwaggerDoc, SwaggerFormat, SwaggerPath, SwaggerProperty, SwaggerType } from "./types";
 import { trim_margin } from "../utils/trim_margin";
 import { apiTemplate } from "./api.template";
+import { PromiseReg, toJsType } from "./type-convert";
 
 const url = "http://127.0.0.1:8880/v2/api-docs";
 const srcDir = path.resolve(__dirname, "../../src/");

@@ -1,4 +1,4 @@
-import { SwaggerProperty, SwaggerType } from "./types";
+import { SwaggerFormat, SwaggerProperty, SwaggerType } from "./types";
 
 /**
  * Java范型内联类型转Js
@@ -38,7 +38,7 @@ const UnknownType = new JsType("unknown");
 
 type ToJsTypeFun = (property: SwaggerProperty) => false | JsType;
 
-const PromiseReg = /^Promise«(.+)»$/;
+export const PromiseReg = /^Promise«(.+)»$/;
 
 /**
  * 
@@ -92,7 +92,7 @@ const toJsTypeDefinitionArray: Array<[SwaggerType, string] |
   }],
 ];
 
-function toJsType(property: SwaggerProperty): JsType {
+export function toJsType(property: SwaggerProperty): JsType {
   let resJsType;
   for (const toJsTypeDefinition of toJsTypeDefinitionArray) {
     const len = toJsTypeDefinition.length;
