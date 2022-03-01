@@ -1,6 +1,6 @@
 import { get } from "./http";
 
-async function getByTableLabelValueUsingGET(value: undefined, table: undefined, label: undefined) {
+async function getByTableLabelValueUsingGET(label: undefined, table: undefined, value: undefined) {
   return get(`/select-option/table/{table}/label/{label}/value/{value}`);
 }
 

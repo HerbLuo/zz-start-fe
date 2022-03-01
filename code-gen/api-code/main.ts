@@ -2,7 +2,7 @@ import * as path from "path";
 import * as fs from "fs-extra";
 import fetch from "node-fetch";
 import { createHash } from "crypto";
-import { ApiPathWithInfo, SwaggerDefinition, SwaggerDoc, SwaggerFormat, SwaggerPath, SwaggerProperty, SwaggerType } from "./types";
+import { ZzApiPath, SwaggerDefinition, SwaggerDoc, SwaggerFormat, SwaggerPathConfig, SwaggerPropertyConfig, SwaggerType } from "./types";
 import { trim_margin } from "../utils/trim_margin";
 import { apiTemplate } from "./api.template";
 import { PromiseReg, toJsType } from "./type-convert";
@@ -70,8 +70,8 @@ async function main() {
   const swagger: SwaggerDoc = await fetch(url).then(r => r.json());
 
   // 生成类型定义
-  const definitions = swagger.definitions;
-  const parsedDefinitions = resolveType(definitions);
+  const swaggerDefinitions = swagger.definitions;
+  const parsedDefinitions = resolveType(swaggerDefinitions);
 
   for (const {typeName, properties, refs} of parsedDefinitions) {
     if (typeName.match(PromiseReg) || typeName.match(AsyncReg)) {
@@ -106,11 +106,11 @@ async function main() {
 
   // 
   // 生成 Api 接口
-  const paths = swagger.paths;
+  const swaggerPaths = swagger.paths;
 
-  const apiInfosGrouped: Record<string, ApiPathWithInfo[]> = {};
+  const zzApiPathsGroupedByController: Record<string, ZzApiPath[]> = {};
 
-  for (const [path, methodWithPath] of Object.entries(paths)) {
+  for (const [urlPath, methodWithPath] of Object.entries(swaggerPaths)) {
     for (const [method, pathInfo] of Object.entries(methodWithPath)) {
       const tag = pathInfo.tags.find(tag => tag.startsWith("group(") && tag.endsWith(")"));
       if (!tag) {
@@ -118,13 +118,12 @@ async function main() {
         continue;
       }
       const group = tag.substring(6, tag.length - 1).replace(/-controller$/, "-api");
-      const apiInfos = apiInfosGrouped[group] ||= [];
-      apiInfos.push({ path, method: method === "delete" ? "del" : method, info: pathInfo });
+      const paths = zzApiPathsGroupedByController[group] ||= [];
+      paths.push({ path: urlPath, method: method === "delete" ? "del" : method, pathConfig: pathInfo });
     }
   }
 
-  const apiInfoGroupedEntries = Object.entries(apiInfosGrouped);
-  for (const [group, pathAndInfos] of apiInfoGroupedEntries) {
+  for (const [group, pathAndInfos] of Object.entries(zzApiPathsGroupedByController)) {
     const fileContent = apiTemplate(group, pathAndInfos);
 
     fs.writeFileSync(path.resolve(srcDirApi, group + ".ts"), fileContent);

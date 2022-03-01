@@ -4,27 +4,27 @@ async function updateAttachmentUsingPUT(attachment: [object Object]) {
   return put(`/attachment`);
 }
 
-async function listAttachmentUsingGET(businessId: undefined, business: undefined) {
+async function listAttachmentUsingGET(business: undefined, businessId: undefined) {
   return get(`/attachment/business/{business}/id/{businessId}`);
 }
 
-async function saveAttachmentUsingPOST(file: [object Object], businessId: undefined, business: undefined) {
+async function saveAttachmentUsingPOST(business: undefined, businessId: undefined, file: [object Object]) {
   return post(`/attachment/business/{business}/id/{businessId}`);
 }
 
-async function getAttachmentCountUsingGET(businessId: undefined, business: undefined) {
+async function getAttachmentCountUsingGET(business: undefined, businessId: undefined) {
   return get(`/attachment/business/{business}/id/{businessId}/count`);
 }
 
-async function getAttachmentUrlLimit1UsingGET(businessId: undefined, business: undefined) {
+async function getAttachmentUrlLimit1UsingGET(business: undefined, businessId: undefined) {
   return get(`/attachment/business/{business}/id/{businessId}/url-limit-1`);
 }
 
-async function getAttachmentCountUsingGET_1(businessIds: undefined, business: undefined) {
+async function getAttachmentCountUsingGET_1(business: undefined, businessIds: undefined) {
   return get(`/attachment/business/{business}/ids/{businessIds}/count`);
 }
 
-async function uploadOrReplaceAttachmentUsingPOST(file: [object Object], businessId: undefined, business: undefined) {
+async function uploadOrReplaceAttachmentUsingPOST(business: undefined, businessId: undefined, file: [object Object]) {
   return post(`/attachment/upload-or-replace/business/{business}/id/{businessId}`);
 }
 

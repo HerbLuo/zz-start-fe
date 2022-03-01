@@ -1,4 +1,4 @@
-import { SwaggerFormat, SwaggerProperty, SwaggerType } from "./types";
+import { SwaggerFormat, SwaggerPropertyConfig, SwaggerType } from "./types";
 
 /**
  * Java范型内联类型转Js
@@ -36,7 +36,7 @@ class JsType {
 
 const UnknownType = new JsType("unknown");
 
-type ToJsTypeFun = (property: SwaggerProperty) => false | JsType;
+type ToJsTypeFun = (property: SwaggerPropertyConfig) => false | JsType;
 
 export const PromiseReg = /^Promise«(.+)»$/;
 
@@ -53,10 +53,10 @@ const toJsTypeDefinitionArray: Array<[SwaggerType, string] |
   ["string", "date", "Date"],
   ["string", "date-time", "Date"],
   ["string", "string"],
-  ["array", (property: SwaggerProperty) => property.items ? toJsType(property.items).mapType(type => `Array<${type}>`) : UnknownType],
-  ["object", (property: SwaggerProperty) => property.additionalProperties ? toJsType(property.additionalProperties).mapType(type => `Record<string, ${type}>`) : false],
+  ["array", (property: SwaggerPropertyConfig) => property.items ? toJsType(property.items).mapType(type => `Array<${type}>`) : UnknownType],
+  ["object", (property: SwaggerPropertyConfig) => property.additionalProperties ? toJsType(property.additionalProperties).mapType(type => `Record<string, ${type}>`) : false],
   ["object", "any"],
-  [(property: SwaggerProperty) => {
+  [(property: SwaggerPropertyConfig) => {
     const ref = property.$ref;
     if (!ref) {
       return false;
@@ -92,7 +92,7 @@ const toJsTypeDefinitionArray: Array<[SwaggerType, string] |
   }],
 ];
 
-export function toJsType(property: SwaggerProperty): JsType {
+export function toJsType(property: SwaggerPropertyConfig): JsType {
   let resJsType;
   for (const toJsTypeDefinition of toJsTypeDefinitionArray) {
     const len = toJsTypeDefinition.length;

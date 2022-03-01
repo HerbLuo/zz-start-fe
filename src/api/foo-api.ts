@@ -1,7 +1,7 @@
 import { post } from "./http";
 
-async function fooUsingPOST(test: [object Object]) {
-  return post(`/foo/foo`);
+async function fooUsingPOST(path: undefined, test: [object Object]) {
+  return post(`/foo/foo/path/{path}`);
 }
 
 export const fooApi = {
