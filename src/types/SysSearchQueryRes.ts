@@ -1,9 +1,11 @@
-// 该文件由 ZZ-CODE-GEN 管理，不要尝试改变它。
-// 该文件的 HASH值为 ###HASH###<90759ca0cf568707a7c74f69d3b686c43284f7cb060d40e5c4bac6a9f82ac994>###HASH###， 
-// 如果你修改了该文件，下次执行"code gen"操作时，不会更新该文件
+// 自动生成的代码块，首行
+// 禁止修改 #HASH<6b056b07a4f244372d5b7ba35ddcf43f4518db9c31758e26192630c908937cb5>HASH#
+// 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
+// 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
 export interface SysSearchQueryRes {
   hasNext: boolean;
-  rows: Array<Record<string, any>>;
+  rows: Record<string, unknown>[];
   total: Promise<number>;
 }
+// 自动生成的代码块，尾行

@@ -1,0 +1,22 @@
+import { {{#each methods}}{{this}}{{#unless @last}}, {{/unless}}{{/each}} } from "./http";
+{{#each deps ~}}
+  import { {{this}} } from "../types/{{this}}";
+{{/each}}
+
+{{#each operations}}
+{{#if summary}}/** {{summary}} */{{/if}}
+async function {{operationName}}(
+  {{~#each parameters}}
+    {{~name}}: {{type}}{{#unless @last}}, {{/unless}}
+  {{~/each}}
+  {{~#if jsonBody}}{{#if parameters}}, {{/if}}{{jsonBody.name}}: {{jsonBody.type}}{{/if~}}
+): Promise<{{response.type}}> {
+  return await {{method}}(`{{path}}`{{~#if jsonBody}}, {{jsonBody.name}}{{/if}});
+}
+
+{{/each}}
+export const {{camelCaseGroup}} = {
+{{#each operations}}
+  {{operationName}},
+{{/each}}
+};

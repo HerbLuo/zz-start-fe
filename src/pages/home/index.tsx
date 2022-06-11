@@ -1,11 +1,18 @@
 import { useEffect } from "react";
-import { searchPlanApi } from "../../api/search-plan"
+import { sysSearchPlanApi } from "../../api/sys-search-plan-api";
+import { sysAccountApi } from "../../api/sys-account-api";
 
 export default function HomePage() {
   useEffect(() => {
-    searchPlanApi.query().then((d) => {
-      console.log(d);
-    });
+    sysAccountApi.loginByPwd({
+      username: "admin",
+      password: "123456",
+      rememberMe: true
+    })
+      .then(() => sysSearchPlanApi.getPlan(""))
+      .then((d) => {
+        console.log(d);
+      });
   });
 
   return <div>home page</div>

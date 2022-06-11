@@ -1,0 +1,9 @@
+{{#each deps ~}}
+  import { {{this}} } from "./{{this}}";
+{{/each}}
+
+export interface {{tsType}} {
+{{#each properties}}
+  {{property}}: {{type}};
+{{/each}}
+}

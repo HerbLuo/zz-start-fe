@@ -1,7 +1,11 @@
-// 该文件由 ZZ-CODE-GEN 管理，不要尝试改变它。
-// 该文件的 HASH值为 ###HASH###<b1978e7c1094b3a39d57ea2984966b9e0638919d217ec1a257bf33f546636d7e>###HASH###， 
-// 如果你修改了该文件，下次执行"code gen"操作时，不会更新该文件
+// 自动生成的代码块，首行
+// 禁止修改 #HASH<260f9293ba6a95f267d918d916d9a0a5b2b037a40e47ef7048e180c4c5f679f4>HASH#
+// 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
+// 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
 export interface Token {
+  expireAt: Date;
+  rememberMeToken: string;
   token: string;
 }
+// 自动生成的代码块，尾行

@@ -1,10 +1,12 @@
-// 该文件由 ZZ-CODE-GEN 管理，不要尝试改变它。
-// 该文件的 HASH值为 ###HASH###<b80adf63f9592f1c209f81187c276de440b565fccc698f5291301e2844365394>###HASH###， 
-// 如果你修改了该文件，下次执行"code gen"操作时，不会更新该文件
+// 自动生成的代码块，首行
+// 禁止修改 #HASH<cbf9f0d375f4cb85f9dc53b22568b5620e3a6b2745e763f2f3e28847387d3a35>HASH#
+// 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
+// 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
 export interface SysSelectOptionRes {
   default: boolean;
   label: string;
-  payload: any;
+  payload: unknown;
   value: string;
 }
+// 自动生成的代码块，尾行

@@ -1,6 +1,7 @@
-// 该文件由 ZZ-CODE-GEN 管理，不要尝试改变它。
-// 该文件的 HASH值为 ###HASH###<08e4acafd0a806fb0f64a8fc2309cc7dee182c3b01af763c70123d4fd9d50d71>###HASH###， 
-// 如果你修改了该文件，下次执行"code gen"操作时，不会更新该文件
+// 自动生成的代码块，首行
+// 禁止修改 #HASH<ae0ff381f6c5a5f82d7fe373f267f5b4dc9b2f77f1a9a5b44a2e9fade35b8f24>HASH#
+// 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
+// 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 import { UsernamePassword } from "./UsernamePassword";
 
 export interface Foo {
@@ -15,12 +16,15 @@ export interface Foo {
   i: number;
   l: string[];
   l2: number[];
-  l3: any[];
+  l3: unknown[];
   l4: boolean[][];
-  l5: Array<Record<string, number>>;
+  l5: Record<string, number>[];
   m: Record<string, string>;
   m2: Record<string, number>;
-  m3: any;
+  m3: unknown;
   re: UsernamePassword;
+  res: UsernamePassword[];
   s: string;
+  timestamps: number[];
 }
+// 自动生成的代码块，尾行

@@ -1,12 +1,15 @@
 import { i18n } from "../i18n/i18n";
 import { showWarnAndLog } from "../utils/dialog";
 import { I18nString } from "../i18n/core-type";
+import { auth } from "./auth-kit";
 
 export const PostHeaders = {
   "Content-Type": "application/json"
 };
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
+  await auth();
+
   const response = await fetch(url, init).catch(async e => {
     throw await showWarnAndLog(i18n("The request failed, possibly due to the network."), e)
   });
