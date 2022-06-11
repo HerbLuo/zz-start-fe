@@ -1,5 +1,5 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<0a1d949e9e7f59670c9ecdc10935f31e93b7160d2147596f8222bebd8970df83>HASH#
+// 禁止修改 #HASH<198ac5f1da0494ef4a2532b5ad3b6fd7771b5f0f6d41cf6911d7d381f413b3f5>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 import { post } from "./http";
@@ -12,7 +12,7 @@ async function loginByPwd(body: UsernamePassword): Promise<Token> {
 }
 
 /** 使用RememberMeToken登陆 */
-async function loginByRememberMeToken(): Promise<unknown> {
+async function loginByRememberMeToken(): Promise<boolean> {
   return await post(`/account/login/remember-me-token`);
 }
 

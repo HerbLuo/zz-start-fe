@@ -1,15 +1,9 @@
 import { useEffect } from "react";
-import { sysSearchPlanApi } from "../../api/sys-search-plan-api";
-import { sysAccountApi } from "../../api/sys-account-api";
+import { sysAttachmentApi } from "../../api/sys-attachment-api";
 
 export default function HomePage() {
   useEffect(() => {
-    sysAccountApi.loginByPwd({
-      username: "admin",
-      password: "123456",
-      rememberMe: true
-    })
-      .then(() => sysSearchPlanApi.getPlan(""))
+    sysAttachmentApi.listAttachment("test", 1)
       .then((d) => {
         console.log(d);
       });
