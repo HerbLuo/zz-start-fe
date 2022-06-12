@@ -1,0 +1,49 @@
+.page {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-image: url("./background.jpg");
+  background-position: 50%;
+  background-size: cover;
+}
+
+.login_box {
+  width: 320px;
+  margin-bottom: 50px;
+  padding: 30px;
+
+  display: flex;
+  flex-direction: column;
+  
+  backdrop-filter: saturate(180%) blur(20px);
+  background-color: #EEE5;
+  border-radius: 3px;
+}
+.login_box>* {
+  margin-bottom: 8px;
+}
+.login_box>h1 {
+  color: #2281d4;
+  margin-bottom: 16px;
+}
+
+.button_group {
+  display: flex;
+}
+.button_group>* {
+  flex: 1;
+  margin: 0 2px;
+}
+.button_group :first-child {
+  margin-left: 0;
+}
+.button_group :last-child {
+  margin-right: 0;
+}
