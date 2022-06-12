@@ -28,6 +28,6 @@ export async function autoLogin(requireLogin: boolean = false) {
       goToLoginPage();
     }
   } catch (e) {
-    throw await showWarnAndLog(i18n("Failed to parse JSON, the network may be unstable, try to refresh."), e);
+    throw await showWarnAndLog(i18n("解析JSON失败, 可能是网络不稳定, 尝试刷新。"), e);
   }
 }

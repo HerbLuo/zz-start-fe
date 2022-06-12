@@ -17,7 +17,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   await autoLoginP;
 
   const response = await fetch(url, init).catch(async e => {
-    throw await showWarnAndLog(i18n("The request failed, possibly due to the network."), e)
+    throw await showWarnAndLog(i18n("服务器出了些问题, 尝试联系支持人员。"), e)
   });
   const responseBodyText = await response.text();
 
@@ -26,7 +26,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   try {
     parsedJsonResponseBody = JSON.parse(responseBodyText);
   } catch (e) {
-    throw await showWarnAndLog(i18n("Failed to parse JSON, the network may be unstable, try to refresh."), e);
+    throw await showWarnAndLog(i18n("解析JSON失败, 可能是网络不稳定, 尝试刷新。"), e);
   }
 
   // 已知的正确返回结果
@@ -41,7 +41,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   if ((parsedJsonResponseBody as { ok: unknown }).ok === -1) {
     const data = (parsedJsonResponseBody as { data: void | { serial: string, code: number, message?: string, alert?: I18nString } }).data;
     if (!data || !data.serial || !data.code) {
-      throw await showWarnAndLog(i18n("There is a problem on the server, try to contact support."), "服务器返回了异常结果(ok=-1)，但异常信息无法解析。", data);
+      throw await showWarnAndLog(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了异常结果(ok=-1)，但异常信息无法解析。", data);
     }
     if (data.alert) {
       throw await showWarnAndLog(data.alert, "[ALERT]服务器返回了一个alert", data);
@@ -56,11 +56,11 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
       goToLoginPage();
       throw new Error("需要登陆但未登陆");
     }
-    throw await showWarnAndLog(i18n("Something went wrong on the server, try to contact support."), "服务器返回了异常", data);
+    throw await showWarnAndLog(i18n("服务器出了些问题, 尝试联系支持人员。"), "服务器返回了异常", data);
   }
 
   // 返回了未知的JSON数据
-  throw await showWarnAndLog(i18n("There is a problem on the server, try to contact support."), "服务器返回了未知的JSON数据", parsedJsonResponseBody);
+  throw await showWarnAndLog(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了未知的JSON数据", parsedJsonResponseBody);
 }
 
 export async function get<T>(url: string): Promise<T> {
