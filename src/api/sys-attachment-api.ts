@@ -1,22 +1,22 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<70aff8c931d583e79fa2d4925abdb1f57f2a13adc1ff58a474b0f0a8e06ea94a>HASH#
+// 禁止修改 #HASH<b10498edcd75b6d5eb4f29c91610aef176b71450b1ddc10797949ac9de10091d>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 import { put, get, post, del } from "./http";
-import { AttachmentEntity } from "../types/AttachmentEntity";
+import { SysAttachmentEntity } from "../types/SysAttachmentEntity";
 
 /** 更新附件 */
-async function updateAttachment(body: AttachmentEntity): Promise<boolean> {
+async function updateAttachment(body: SysAttachmentEntity): Promise<boolean> {
   return await put(`/attachment`, body);
 }
 
 /** 获取附件列表 */
-async function listAttachment(business: string, businessId: number): Promise<AttachmentEntity[]> {
+async function listAttachment(business: string, businessId: number): Promise<SysAttachmentEntity[]> {
   return await get(`/attachment/business/${business}/id/${businessId}`);
 }
 
 /** 上传附件 */
-async function saveAttachment(business: string, businessId: number): Promise<AttachmentEntity> {
+async function saveAttachment(business: string, businessId: number): Promise<SysAttachmentEntity> {
   return await post(`/attachment/business/${business}/id/${businessId}`);
 }
 
@@ -36,7 +36,7 @@ async function getAttachmentCount_1(business: string, businessIds: number[]): Pr
 }
 
 /** 上传或替换附件 */
-async function uploadOrReplaceAttachment(business: string, businessId: number): Promise<AttachmentEntity> {
+async function uploadOrReplaceAttachment(business: string, businessId: number): Promise<SysAttachmentEntity> {
   return await post(`/attachment/upload-or-replace/business/${business}/id/${businessId}`);
 }
 

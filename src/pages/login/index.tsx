@@ -1,3 +1,4 @@
+import { Button, Input } from "antd";
 import { useEffect } from "react";
 import { sysAccountApi } from "../../api/sys-account-api";
 import { siteBasePath } from "../../utils/site";
@@ -14,20 +15,25 @@ function whenLoggedIn() {
 
 export default function LoginPage() {
   useEffect(() => {
-    alert("login page");
     localStorage.setItem("remember_me", "yes");
 
-    sysAccountApi.loginByPwd({
-      username: "admin",
-      password: "123456",
-      rememberMe: true,
-    }).then(() => {
-      whenLoggedIn();
-      forward();
-    });
+    // sysAccountApi.loginByPwd({
+    //   username: "admin",
+    //   password: "123456",
+    //   rememberMe: true,
+    // }).then(() => {
+    //   whenLoggedIn();
+    //   forward();
+    // });
   });
 
 
-  return <div>login page</div>
+  return (
+    <div >
+      <Input placeholder="用户名"/>
+      <Input placeholder="密码"/>
+      <Button>登陆</Button>
+    </div>
+  );
 }
 
