@@ -5,10 +5,12 @@ import { logger } from "./logger";
 import { TippedError } from "./errors";
 import { Modal } from "antd";
 
-export async function showDialog(message: I18nString | Promise<I18nString> | JSX.Element): Promise<void> {
+const withId = false;
+
+export async function showDialog(message: I18nString | Promise<I18nString> | JSX.Element, id?: string): Promise<void> {
   const dialogClosedPromiseDefer = defer<void>();
   Modal.warn({
-    content: (<div>{await message}</div>),
+    content: (<div>{await message}{withId ? `id: ${id}` : null}</div>),
   });
   console.log(message);
   dialogClosedPromiseDefer.resolve();
@@ -33,6 +35,6 @@ export const showWarnAndLog: ShowWarnAndLog = async (alert: Promise<I18nString> 
   const id = nextId();
   logger.warn("[WARN]" + id, args);
   const alertResolved = await alert;
-  await showDialog((alertResolved + "id: " + id) as I18nString);
+  await showDialog(alertResolved, id);
   return TippedError;
 };
