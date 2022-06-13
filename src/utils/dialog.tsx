@@ -1,5 +1,5 @@
 import { nextId } from "./random";
-import { I18nString } from "../i18n/core-type";
+import { I18nString } from "../i18n/core";
 import { defer } from "./defer";
 import { logger } from "./logger";
 import { TippedError } from "./errors";

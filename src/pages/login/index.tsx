@@ -6,8 +6,11 @@ import { useInput } from "../../utils/hooks";
 import { sysAccountApi } from "../../api/sys-account-api";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { showWarnAndLog } from "../../utils/dialog";
-import { useI18n } from "../../i18n/use-i18n";
-import { i18n } from "../../i18n/i18n";
+import { useI18n as useI18nGlobal } from "../../i18n/use-i18n";
+import { i18n as i18nGlobal } from "../../i18n/core";
+
+const i18n = i18nGlobal.module("login");
+const useI18n = useI18nGlobal.module("login");
 
 function forwardToLoggedPage() {
   const forward_to = new URL(window.location.href).searchParams.get("forward_to");

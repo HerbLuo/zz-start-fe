@@ -1,6 +1,5 @@
-import { i18n } from "../i18n/i18n";
 import { showWarnAndLog } from "../utils/dialog";
-import { I18nString } from "../i18n/core-type";
+import { I18nString, i18n } from "../i18n/core";
 import { autoLogin, goToLoginPage } from "./auto-login";
 import { TokenExpired, HTTP_STATUS_UNAUTHORIZED } from "./constants";
 

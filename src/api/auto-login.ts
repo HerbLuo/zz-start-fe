@@ -1,4 +1,4 @@
-import { i18n } from "../i18n/i18n";
+import { i18n } from "../i18n/core";
 import { showWarnAndLog } from "../utils/dialog";
 import { siteBasePath } from "../utils/site";
 
