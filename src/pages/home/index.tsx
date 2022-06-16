@@ -1,13 +1,14 @@
-import { useEffect } from "react";
-import { sysAttachmentApi } from "../../api/sys-attachment-api";
+import { useState } from "react";
+import { AutoSizeInput } from "../../utils/input-suit-auto-size";
 
 export default function HomePage() {
-  useEffect(() => {
-    sysAttachmentApi.listAttachment("test", 1)
-      .then((d) => {
-        console.log(d);
-      });
-  });
+  const [value, setValue] = useState<string>();
 
-  return <div>home page</div>
+  console.log("render");
+
+  return (
+    <div>
+      <AutoSizeInput value={value} onChange={e => setValue(e.target.value)} />
+    </div>
+  );
 }
