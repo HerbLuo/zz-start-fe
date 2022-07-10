@@ -1,5 +1,5 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<917f5e75afef464183d9ba9efd63baaea38a94f1973661a430b197112829c940>HASH#
+// 禁止修改 #HASH<28dae49883c456d01557048bd5a720efff861407242c443150ed508b894bcd60>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
@@ -8,6 +8,8 @@ export interface SysQueryUserPlanEntity {
   createBy: string;
   /** 创建时间 */
   createTime: Date;
+  /** 是否为默认方案 */
+  default: boolean;
   /** 删除标志 */
   deleted: boolean;
   /** ID */

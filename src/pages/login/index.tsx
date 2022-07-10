@@ -2,7 +2,7 @@ import styles from "./index.module.css";
 import { Button, Checkbox, Input } from "antd";
 import { useState, useCallback } from "react";
 import { siteBasePath } from "../../utils/site";
-import { useInput } from "../../utils/hooks";
+import { useInput } from "../../utils/hooks/dom";
 import { sysAccountApi } from "../../api/sys-account-api";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { showWarnAndLog } from "../../utils/dialog";
