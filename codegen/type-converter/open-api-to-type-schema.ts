@@ -72,7 +72,8 @@ export class ZzTypeSchemas {
     // 将openApiSchema转为typeSchema
     const deps: Set<string> = new Set<string>();
     const modelTypeProperties: TypeSchemaProperty[] = Object.entries(properties).map(([key, value]) => {
-      const tsType = jsonSchemaToTsType(value as JSONSchema7);
+      const jsonSchema = value as JSONSchema7;
+      const tsType = jsonSchemaToTsType(jsonSchema);
 
       for (const dep of tsType.deps) {
         if (dep !== title) {
@@ -86,6 +87,7 @@ export class ZzTypeSchemas {
       return {
         property: key,
         type: tsType.type,
+        remark: jsonSchema.description
       };
     });
     return {

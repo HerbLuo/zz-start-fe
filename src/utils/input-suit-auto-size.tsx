@@ -6,8 +6,7 @@
  * @version 0.0.1
  */
 import { Input, InputProps, InputRef } from "antd";
-import { useMemo, useState, useEffect, useCallback, useRef } from "react";
-import { withIndicateValue } from "./input-suit-with-indicate";
+import { useMemo, useState, useEffect, useCallback, useRef, forwardRef, ForwardedRef } from "react";
 import { displayWidth } from "./string-display-width";
 
 interface Props extends Omit<InputProps, "value"> {
@@ -15,9 +14,10 @@ interface Props extends Omit<InputProps, "value"> {
   extra?: number; // 宽度不足时，额外增加的宽度
   minWidth?: number;
   paddings?: number;
+  version?: number; // 改变该值可以使该Pure组件重新render
 }
 
-export function AutoSizeInput(props: Props) {
+export const AutoSizeInput = forwardRef((props: Props, ref: ForwardedRef<InputRef>) => {
   const { value, extra, minWidth, paddings, style, ...others } = {
     extra: 17,
     minWidth: 80,
@@ -64,12 +64,15 @@ export function AutoSizeInput(props: Props) {
 
   const inputRefCallback = useCallback((r: InputRef | null) => {
     inputRef.current = r?.input;
+    if (typeof ref === "function") {
+      ref(r);
+    } else if (ref) {
+      ref.current = r;
+    }
     setInputElLoaded(!!inputRef.current);
-  }, []);
+  }, [ref]);
 
   return (
     <Input ref={inputRefCallback} value={value || ""} style={finalStyle} {...others} />
   );
-}
-
-export const WithIndicateAutoSizeInput = withIndicateValue(AutoSizeInput);
+});

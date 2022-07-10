@@ -1,6 +1,7 @@
 export interface TypeSchemaProperty {
   property: string;
   type: string;
+  remark?: string;
 }
 
 export interface TypeSchema {

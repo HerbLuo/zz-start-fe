@@ -37,7 +37,7 @@ type EventType<C extends React.ElementType, TRIGGER extends string> =
 
 type IndicateProps<C extends React.ElementType, VALUE, TRIGGER extends string> = 
   & Omit<React.ComponentPropsWithRef<C>, "value" | "defaultValue" | TRIGGER> 
-  & { [K in TRIGGER]: ((value: VALUE, event: EventType<C, TRIGGER>) => void) } 
+  & { [K in TRIGGER]: ((event: EventType<C, TRIGGER>, value: VALUE) => void) } 
   & { indicateValue: VALUE };
 
 interface WithIndicateValue {
@@ -78,7 +78,7 @@ export const withIndicateValue: WithIndicateValue = (
         [trigger]: (e: any) => {
           const onBlur = others[trigger];
           if (onBlur) {
-            onBlur(currentValueRef.current, e);
+            onBlur(e, currentValueRef.current);
           }
         }
       }

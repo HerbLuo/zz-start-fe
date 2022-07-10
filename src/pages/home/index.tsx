@@ -1,14 +1,11 @@
-import { useState } from "react";
-import { AutoSizeInput } from "../../utils/input-suit-auto-size";
+import { useQuery } from "../../utils/query";
 
 export default function HomePage() {
-  const [value, setValue] = useState<string>();
-
-  console.log("render");
+  const { el, fetchData } = useQuery("zi_dian_guan_li");
 
   return (
     <div>
-      <AutoSizeInput value={value} onChange={e => setValue(e.target.value)} />
+      {el}
     </div>
   );
 }
