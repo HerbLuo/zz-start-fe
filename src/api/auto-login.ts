@@ -1,5 +1,5 @@
 import { i18n } from "../i18n/core";
-import { showWarnAndLog } from "../utils/dialog";
+import { showWarn } from "../utils/dialog";
 import { siteBasePath } from "../utils/site";
 
 export function goToLoginPage() {
@@ -28,6 +28,6 @@ export async function autoLogin(requireLogin: boolean = false) {
       goToLoginPage();
     }
   } catch (e) {
-    throw await showWarnAndLog(i18n("解析JSON失败, 可能是网络不稳定, 尝试刷新。"), e);
+    throw await showWarn(i18n("解析JSON失败, 可能是网络不稳定, 尝试刷新。"), e);
   }
 }

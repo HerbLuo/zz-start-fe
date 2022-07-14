@@ -4,7 +4,7 @@ export function nextInt(len: number = 3): number {
 
 export function nextStr(len: number = 3, upperCase: Boolean = true): string {
   const hex10 = (Math.random() * (36 ** len + 1));
-  const hex36 = hex10.toString(36).padStart(len, "0");
+  const hex36 = Number(hex10.toFixed(0)).toString(36).padStart(len, "0");
   return upperCase ? hex36.toUpperCase() : hex36;
 }
 
@@ -73,5 +73,5 @@ function baseXXEncodeReversed(num: number, ...withSymbols: string[]): string[] {
   return chars;
 }
 
-const BAD_STR_REG = new RegExp("IlO04");
+const BAD_STR_REG = /IlO04/g;
 const CHARSET62 = [...("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" as string)];

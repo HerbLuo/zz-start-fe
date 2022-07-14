@@ -1,4 +1,4 @@
-import { showWarnAndLog } from "../utils/dialog";
+import { showWarn } from "../utils/dialog";
 import { I18nString, i18n } from "../i18n/core";
 import { autoLogin, goToLoginPage } from "./auto-login";
 import { TokenExpired, HTTP_STATUS_UNAUTHORIZED } from "./constants";
@@ -19,7 +19,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   await delay(1000);
 
   const response = await fetch(url, init).catch(async e => {
-    throw await showWarnAndLog(i18n("服务器出了些问题, 尝试联系支持人员。"), e)
+    throw await showWarn(i18n("服务器出了些问题, 尝试联系支持人员。"), e)
   });
   const responseBodyText = await response.text();
 
@@ -28,7 +28,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   try {
     parsedJsonResponseBody = JSON.parse(responseBodyText);
   } catch (e) {
-    throw await showWarnAndLog(i18n("解析JSON失败, 可能是网络不稳定, 尝试刷新。"), e);
+    throw await showWarn(i18n("解析JSON失败, 可能是网络不稳定, 尝试刷新。"), e);
   }
 
   // 已知的正确返回结果
@@ -43,10 +43,10 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   if ((parsedJsonResponseBody as { ok: unknown }).ok === -1) {
     const data = (parsedJsonResponseBody as { data: void | { serial: string, code: number, message?: string, alert?: I18nString } }).data;
     if (!data || !data.serial || !data.code) {
-      throw await showWarnAndLog(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了异常结果(ok=-1)，但异常信息无法解析。", data);
+      throw await showWarn(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了异常结果(ok=-1)，但异常信息无法解析。", data);
     }
     if (data.alert) {
-      throw await showWarnAndLog(data.alert, "[ALERT]服务器返回了一个alert", data);
+      throw await showWarn(data.alert, "[ALERT]服务器返回了一个alert", data);
     }
     if (data.code === TokenExpired) {
       await autoLogin(true);
@@ -58,11 +58,11 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
       goToLoginPage();
       throw new Error("需要登陆但未登陆");
     }
-    throw await showWarnAndLog(i18n("服务器出了些问题, 尝试联系支持人员。"), "服务器返回了异常", data);
+    throw await showWarn(i18n("服务器出了些问题, 尝试联系支持人员。"), "服务器返回了异常", data);
   }
 
   // 返回了未知的JSON数据
-  throw await showWarnAndLog(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了未知的JSON数据", parsedJsonResponseBody);
+  throw await showWarn(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了未知的JSON数据", parsedJsonResponseBody);
 }
 
 export async function get<T>(url: string): Promise<T> {

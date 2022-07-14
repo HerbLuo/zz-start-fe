@@ -5,7 +5,7 @@ import { siteBasePath } from "../../utils/site";
 import { useInput } from "../../utils/hooks/dom";
 import { sysAccountApi } from "../../api/sys-account-api";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import { showWarnAndLog } from "../../utils/dialog";
+import { showWarn } from "../../utils/dialog";
 import { useI18n as useI18nGlobal } from "../../i18n/use-i18n";
 import { i18n as i18nGlobal } from "../../i18n/core";
 
@@ -39,10 +39,10 @@ export default function LoginPage() {
 
   const onLogin = useCallback(async () => {
     if (!username) {
-      throw await showWarnAndLog(i18n("用户名不能为空"));
+      throw await showWarn(i18n("用户名不能为空"));
     }
     if (!password) {
-      throw await showWarnAndLog(i18n("密码不能为空"));
+      throw await showWarn(i18n("密码不能为空"));
     }
 
     await sysAccountApi.loginByPwd({

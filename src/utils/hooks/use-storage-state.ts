@@ -4,7 +4,7 @@ import { usePrevious } from "./use-previous";
 /**
  * useStorageState
  * @param storageKey 
- * @param init 初始值
+ * @param init 
  * @param upgrade 用于更新版本
  * @returns 
  */

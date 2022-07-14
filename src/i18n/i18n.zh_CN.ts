@@ -5,6 +5,8 @@ export interface I18nMessageKeys {
   | "服务器出了点小问题, 尝试联系支持人员。" 
   | "服务器出了些问题, 尝试联系支持人员。"
   ,
+  query:
+  | "确定重置该方案?",
   login:
   | "登录"
   | "注册"
