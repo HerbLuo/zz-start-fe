@@ -35,10 +35,11 @@ export interface I18n extends I18nFunction<"global"> {
 export function createI18n(locale: SupportedLocale): I18n {
   const isMainLang = locale === mainLang;
 
+  // /* webpackChunkName: "[request]" */
   const toI18nMsg = <M extends Modules>(module: M): I18nFunction<M> => {
     const dynamicModule = module === "global"
-      ? import(/* webpackChunkName: "[request]" */`./i18n.${locale}.ts`)
-      : import(/* webpackChunkName: "[request]" */`./i18n.${locale}.${module}.ts`);
+      ? import(`./i18n.${locale}.ts`)
+      : import(`./i18n.${locale}.${module}.ts`);
 
     return ((guessOrKey, ...others) => {
       const guessMode = guessOrKey === true;

@@ -1,3 +1,8 @@
-import { areDebug } from "../utils/env";
+import { areDebug, areVite } from "../utils/env";
 
-export const basePath = areDebug ? "" : "http://10.1.1.12:8880";
+export const basePath = areDebug 
+  ? areVite ? "/api-server" : ""
+  : "https://api.localhost.cloudself.cn";
+
+export const withCredentials = basePath.startsWith("http") && 
+  new URL(basePath).hostname !== window.location.hostname

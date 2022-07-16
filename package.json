@@ -2,6 +2,7 @@
   "name": "zz-start-fe",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@ant-design/aliyun-theme": "^0.0.5",
     "@ant-design/icons": "^4.7.0",
@@ -17,6 +18,7 @@
     "@types/node-fetch": "2",
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.0.0",
     "antd": "^4.21.0",
     "big.js": "^6.2.0",
     "fs-extra": "^10.0.0",
@@ -32,22 +34,19 @@
     "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
     "typescript": "^4.4.2",
+    "vite": "^3.0.0",
+    "vite-plugin-eslint": "^1.6.1",
     "web-vitals": "^2.1.0"
   },
   "proxy": "http://localhost:8880",
   "scripts": {
-    "start": "react-scripts start",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "react-scripts:start": "react-scripts start",
+    "react-scripts:build": "react-scripts build",
     "generate": "sh -c 'ts-node ./codegen/main/${0}.ts'",
-    "build": "react-scripts build",
-    "build-antd-css": "lessc --js ./src/theme/antd.less ./src/theme/antd.css",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "build-antd-css": "lessc --js ./src/theme/antd.less ./src/theme/antd.css"
   },
   "browserslist": {
     "production": [

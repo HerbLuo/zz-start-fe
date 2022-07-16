@@ -1,6 +1,6 @@
 import styles from "./index.module.css";
 import { Button, Checkbox, Input } from "antd";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { siteBasePath } from "../../utils/site";
 import { useInput } from "../../utils/hooks/dom";
 import { sysAccountApi } from "../../api/sys-account-api";
@@ -12,6 +12,8 @@ import { i18n as i18nGlobal } from "../../i18n/core";
 const i18n = i18nGlobal.module("login");
 const useI18n = useI18nGlobal.module("login");
 
+const LOGGED_IN = "logged_in";
+
 function forwardToLoggedPage() {
   const forward_to = new URL(window.location.href).searchParams.get("forward_to");
   window.history.replaceState(null, "", forward_to || (siteBasePath + "/"));
@@ -19,13 +21,19 @@ function forwardToLoggedPage() {
 }
 
 function whenLoggedIn() {
-  sessionStorage.setItem("logged_in", "yes");
+  sessionStorage.setItem(LOGGED_IN, "yes");
 }
 
 export default function LoginPage() {
   const [username, setUsername] = useInput<string>();
   const [password, setPassword] = useInput<string>();
   const [rememberMe, setRememberMe] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (sessionStorage.getItem(LOGGED_IN) === "yes") {
+      forwardToLoggedPage();
+    }
+  }, [])
 
   const onRememberMeClick = useCallback((e: CheckboxChangeEvent) => {
     const checked = e.target.checked;

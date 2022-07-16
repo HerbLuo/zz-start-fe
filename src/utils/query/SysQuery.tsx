@@ -1,13 +1,14 @@
-import { Button } from "antd";
+import { Button, message } from "antd";
 import CloseCircleOutlined from "@ant-design/icons/CloseCircleOutlined";
 import DownOutlined from "@ant-design/icons/DownOutlined";
+import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import { MouseEventHandler, useCallback, useEffect, useState } from "react";
 import { SysQueryElementEntity } from "../../types/SysQueryElementEntity";
 import { SysQueryUserPlan } from "../../types/SysQueryUserPlan";
 import { useStorageState } from "../hooks/use-storage-state";
 import isEqual from "lodash.isequal";
 import { styles } from "./SysQuery.style";
-import { showConfirm, showSuccess } from "../dialog";
+import { showConfirm } from "../dialog";
 
 import { _logger } from "../logger";
 import { i18n as i18nGlobal } from "../../i18n/core";
@@ -17,12 +18,12 @@ const i18n = i18nGlobal.module("query");
 
 interface SysQueryProps {
   tag: string;
-  plans?: SysQueryUserPlan[];
+  plansServer?: SysQueryUserPlan[];
   elements?: SysQueryElementEntity[];
 }
 
 export function SysQuery(props: SysQueryProps) {
-  const { tag, plans: plansServer, elements } = props;
+  const { tag, plansServer, elements } = props;
 
   const [plans, setPlans] = useState<SysQueryUserPlan[]>();
   const [editing, setEditing] = useState(false);
@@ -35,7 +36,16 @@ export function SysQuery(props: SysQueryProps) {
   const activePlan = plans?.find(plan => plan.plan.id === activePlanId);
 
   useEffect(() => {
-    setPlans(plansServer);
+    if (plansServer) {
+      setPlans(plans => {
+        if (plans) {
+          logger.warn("plansServer发生变动", plans, plansServer);
+        } else {
+          logger.info(plansServer);
+        }
+        return JSON.parse(JSON.stringify(plansServer))
+      });
+    }
   }, [plansServer]);
 
   useEffect(() => {
@@ -61,6 +71,19 @@ export function SysQuery(props: SysQueryProps) {
     setMore(!more);
   }, [more, setMore]);
 
+  const createItem = () => {
+    // setCurrentSetting({
+    //   items: [...currentSetting?.items!, {id: nextStr()} as UserSettingItem<keyof T>]
+    // });
+  }
+
+  const query = useCallback(() => {
+    // if (!setQuerySetting) {
+    //   return showWarnWithoutSign("未配置userSettingRef, 无法实现查询");
+    // }
+    // setQuerySetting(currentSetting);
+  }, []);
+
   const reset = async () => {
     await showConfirm(i18n("确定重置该方案?"));
     // const resetUserSettings = userSettings.map(setting => {
@@ -73,15 +96,15 @@ export function SysQuery(props: SysQueryProps) {
     // // setCurrentSetting({
     // //   items: [{id: nextStr()} as UserSettingItem<keyof T>],
     // // });
-    // message.success("重置成功");
+    message.success("重置成功");
   }
 
   const clear = async () => {
-    // await showConfirm("确定清空该方案");
+    await showConfirm(i18n("确定清空该方案?"));
     // setCurrentSetting({
     //   items: [{id: nextStr()} as UserSettingItem<keyof T>],
     // });
-    // message.success("清空成功");
+    message.success("清空成功");
   }
 
   const save = useCallback(() => {
@@ -102,7 +125,10 @@ export function SysQuery(props: SysQueryProps) {
               key={plan.id}
               text={plan.name}
               active={plan.id === activePlanId}
-              edited={!isEqual({plan, items}, plansServer?.find(p => p.plan.id === plan.id))}
+              edited={!isEqual(
+                {plan, items}, 
+                plansServer?.find(p => p.plan.id === plan.id)
+              )}
               showDelete={editing && !plan.readonly}
               onClick={onPlanClick(plan.id)}
               onDelete={deletePlan(plan.id)}
@@ -116,9 +142,18 @@ export function SysQuery(props: SysQueryProps) {
         <div style={styles.filterConditions(more)}>
           {/* {quickFilters} */}
         </div>
-        <Button style={styles.showMore} icon={<DownOutlined style={styles.showMoreIcon(more)} />} onClick={showMore}/>
-        {/* <Button style={styles.createItem} icon={<PlusOutlined />} onClick={createItem} type="primary"/> */}
-        {/* <Button style={styles.query} onClick={query} type="primary">查询</Button> */}
+        <Button 
+          style={styles.showMore} 
+          icon={<DownOutlined style={styles.showMoreIcon(more)} />} 
+          onClick={showMore}
+        />
+        <Button 
+          type="primary"
+          style={styles.createItem} 
+          icon={<PlusOutlined />}  
+          onClick={createItem}
+        />
+        <Button type="primary" style={styles.query} onClick={query}>查询</Button>
         <Button style={{marginLeft: 8}} onClick={reset}>重置</Button>
         <Button style={{marginLeft: 8}} onClick={clear}>清空</Button>
         {activePlan?.plan.readonly 

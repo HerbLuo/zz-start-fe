@@ -1,10 +1,18 @@
 import { i18n } from "../i18n/core";
-import { showWarn } from "../utils/dialog";
+import { delay } from "../utils/delay";
+import { showConfirm, showWarn } from "../utils/dialog";
 import { siteBasePath } from "../utils/site";
+import { basePath, withCredentials } from "./config";
 
 export function goToLoginPage() {
-  const forward_to = new URL(window.location.href).searchParams.get("forward_to");
-  window.location.href = `${siteBasePath}/login?forward_to=${encodeURIComponent(forward_to || window.location.href)}`;
+  const forwardTo = new URL(window.location.href).searchParams.get("forward_to");
+  Promise.race([
+    showConfirm(i18n("登陆失败，{}秒后自动跳转", 5)),
+    delay(5000),
+  ]).then(() => {
+    const encodeUrl = encodeURIComponent(forwardTo || window.location.href);
+    window.location.href = `${siteBasePath}/login?forward_to=${encodeUrl}`;
+  });
 }
 
 export async function autoLogin(requireLogin: boolean = false) { 
@@ -20,7 +28,10 @@ export async function autoLogin(requireLogin: boolean = false) {
     }
     return;
   } 
-  const response = await fetch(`/account/login/remember-me-token`, { method: "POST" });
+  const response = await fetch(`${basePath}/account/login/remember-me-token`, { 
+    method: "POST",
+    credentials: withCredentials ? "include" : undefined,
+  });
   const responseBodyText = await response.text();
   try {
     const parsedJsonResponseBody: unknown = JSON.parse(responseBodyText);

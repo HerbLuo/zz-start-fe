@@ -4,8 +4,8 @@ import Loading from "./pages/loading";
 
 function LazyPage({ page }: { page?: string }) {
   const params = useParams();
+  /* webpackChunkName: "[request]" */
   const Page = lazy(() => import(
-    /* webpackChunkName: "[request]" */
     `./pages/${page || params.page}/index.tsx`
   ));
 

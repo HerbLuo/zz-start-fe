@@ -12,7 +12,7 @@ export function useQuery(tag: string) {
   }, []);
 
   return {
-    el: <SysQuery tag={tag} plans={plans} elements={elements}/>,
+    el: <SysQuery tag={tag} plansServer={plans} elements={elements}/>,
     fetchData,
   }
 };

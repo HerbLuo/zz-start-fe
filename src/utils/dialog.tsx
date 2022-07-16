@@ -20,6 +20,7 @@ export async function showConfirm(
   const confirmDefer = defer<void>();
 
   Modal.confirm({
+    autoFocusButton: null,
     title: <AsyncText style={{fontWeight: "normal"}} children={title}/>,
     content: isValidElement(content) 
       ? content 

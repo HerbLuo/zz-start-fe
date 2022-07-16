@@ -3,9 +3,15 @@ import { I18nString, i18n } from "../i18n/core";
 import { autoLogin, goToLoginPage } from "./auto-login";
 import { TokenExpired, HTTP_STATUS_UNAUTHORIZED } from "./constants";
 import { delay } from "../utils/delay";
+import { areDebug } from "../utils/env";
+import { withCredentials } from "./config";
 
 export const PostHeaders = {
   "Content-Type": "application/json"
+};
+
+export const defaultInit: RequestInit = {
+  credentials: withCredentials ? "include" : undefined,
 };
 
 export interface RequestOptions {
@@ -14,9 +20,12 @@ export interface RequestOptions {
 
 const autoLoginP = autoLogin();
 export async function request<T>(url: string, init?: RequestInit, options: RequestOptions = {}): Promise<T> {
+  init = { ...defaultInit, ...init };
   await autoLoginP;
 
-  await delay(1000);
+  if (areDebug) {
+    await delay(200);
+  }
 
   const response = await fetch(url, init).catch(async e => {
     throw await showWarn(i18n("服务器出了些问题, 尝试联系支持人员。"), e)

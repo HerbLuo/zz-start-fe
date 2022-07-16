@@ -9,9 +9,6 @@ export default function HomePage() {
   return (
     <div style={{padding: "10px"}}>
       {el}
-
-      <br/>
-      <Input placeholder="请输入"/>
     </div>
   );
 }
