@@ -1,5 +1,5 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<28dae49883c456d01557048bd5a720efff861407242c443150ed508b894bcd60>HASH#
+// 禁止修改 #HASH<353277494e48aae5cb72e169a67b65a8700052c9e90f00f080336933a1c5eb88>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
@@ -17,7 +17,7 @@ export interface SysQueryUserPlanEntity {
   /** 用户定义的查询方案名称 */
   name: string;
   /** 只读（针对公用方案, 只能拷贝不能修改） */
-  readonly: boolean;
+  public: boolean;
   /** 备注 */
   remark: string;
   /** 排序 */

@@ -9,6 +9,7 @@ export interface I18nMessageKeys {
   query:
   | "确定重置该方案?"
   | "确定清空该方案?"
+  | "确定删除方案：《{}》?"
   ,
   login:
   | "登录"

@@ -9,6 +9,6 @@ export function freeze(status: boolean) {
   if (status) {
     rootEl.className = rootEl.className + " freeze-all";
   } else {
-    rootEl.className = rootEl.className.replace(/freeze-all/g, "");
+    rootEl.className = rootEl.className.replace(/ ?freeze-all/g, "");
   }
 }

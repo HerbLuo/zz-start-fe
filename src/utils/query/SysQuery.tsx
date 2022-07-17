@@ -1,5 +1,5 @@
 import { Button, message } from "antd";
-import CloseCircleOutlined from "@ant-design/icons/CloseCircleOutlined";
+import CloseCircleTwoTone from "@ant-design/icons/CloseCircleTwoTone";
 import DownOutlined from "@ant-design/icons/DownOutlined";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import { MouseEventHandler, useCallback, useEffect, useState } from "react";
@@ -9,9 +9,11 @@ import { useStorageState } from "../hooks/use-storage-state";
 import isEqual from "lodash.isequal";
 import { styles } from "./SysQuery.style";
 import { showConfirm } from "../dialog";
-
 import { _logger } from "../logger";
 import { i18n as i18nGlobal } from "../../i18n/core";
+import { freeze } from "../freeze";
+import { FadeIn } from "../transition";
+import { delay } from "../delay";
 
 const logger = _logger(import.meta.url);
 const i18n = i18nGlobal.module("query");
@@ -49,23 +51,39 @@ export function SysQuery(props: SysQueryProps) {
   }, [plansServer]);
 
   useEffect(() => {
-    const defaultPlanId = plansServer?.find(({plan}) => plan.default)?.plan.id;
-    if (!activePlanId && defaultPlanId) {
-      setActivePlanId(defaultPlanId);
-    } 
+    if (!activePlanId) {
+      const defaultId = plansServer?.find(({plan}) => plan.default)?.plan.id;
+      if (defaultId) {
+        setActivePlanId(defaultId);
+      } else if (plansServer?.length && plansServer.length > 0) {
+        setActivePlanId(plansServer[0].plan.id);
+      }
+    }
   }, [activePlanId, plansServer, setActivePlanId]);
 
   const onPlanClick = (planId: number) => () => {
     console.log(planId);
   }
 
-  const deletePlan = (planId: number) => () => {
+  const deletePlan = (planId: number) => async () => {
+    const plan = plans?.find(p => p.plan.id === planId);
+    await showConfirm(i18n("确定删除方案：《{}》?", plan?.plan.name));
 
+    freeze(true);
+    await delay(3000);
+    freeze(false);
   }
 
-  const edit = useCallback(() => {
+  const edit = useCallback(async () => {
+    if (!editing) {
+      return setEditing(true);
+    }
+    freeze(true);
+    await delay(1000);
 
-  }, []);
+    setEditing(false);
+    freeze(false);
+  }, [editing]);
 
   const showMore = useCallback(() => {
     setMore(!more);
@@ -116,7 +134,7 @@ export function SysQuery(props: SysQueryProps) {
   }, []);
 
   return (
-    <div className="sys-query">
+    <div className="sys-query" style={styles.sysQuery}>
       <div style={styles.userPlans}>
         <span style={styles.userPlanLabel}>我的方案：</span>
         {!plans ? null : (<>
@@ -129,7 +147,8 @@ export function SysQuery(props: SysQueryProps) {
                 {plan, items}, 
                 plansServer?.find(p => p.plan.id === plan.id)
               )}
-              showDelete={editing && !plan.readonly}
+              editing={editing}
+              showDelete={editing && !plan.public}
               onClick={onPlanClick(plan.id)}
               onDelete={deletePlan(plan.id)}
             />
@@ -156,7 +175,7 @@ export function SysQuery(props: SysQueryProps) {
         <Button type="primary" style={styles.query} onClick={query}>查询</Button>
         <Button style={{marginLeft: 8}} onClick={reset}>重置</Button>
         <Button style={{marginLeft: 8}} onClick={clear}>清空</Button>
-        {activePlan?.plan.readonly 
+        {activePlan?.plan.public 
           ? null
           : <Button type="link" onClick={save}>保存方案</Button>
         }
@@ -166,29 +185,44 @@ export function SysQuery(props: SysQueryProps) {
   );
 }
 
-interface PlanProps {
+interface PlanBtnProps {
   text: string;
   active: boolean;
   edited: boolean;
+  editing: boolean;
   showDelete: boolean;
   onClick?: MouseEventHandler<HTMLDivElement>;
   onDelete?: MouseEventHandler<HTMLDivElement>;
 }
 
-function PlanBtn(props: PlanProps) {
+function PlanBtn(props: PlanBtnProps) {
+  const [hover, setHover] = useState(false);
+  const onMouseEnter: MouseEventHandler = useCallback((e) => {
+    setHover(true);
+  }, []);
+  const onMouseLeave: MouseEventHandler = useCallback((e) => {
+    setHover(false);
+  }, []);
+
   return (
-    <div style={styles.userPlan(props.active)} onClick={props.onClick}>
+    <div style={styles.planButtonBox}>
+      <Button
+        type={props.active ? "primary" : "default"}
+        style={styles.planButton(props.active, props.editing)}
+        onClick={props.onClick}
+      >
+        {props.text}
+      </Button>
       {props.edited ? <div style={styles.point}/> : null}
-      {props.showDelete
-        ? (
-          <CloseCircleOutlined 
-            style={styles.deleteIcon} 
-            onClick={props.onDelete} 
-          /> 
-        )
-        : null
-      }
-      <button style={styles.planButton}>{props.text}</button>
-    </div>
+      <FadeIn if={props.showDelete}>
+        <CloseCircleTwoTone
+          twoToneColor={hover ? "#FF5500" : "#FFA500"}
+          style={styles.deleteIcon} 
+          onClick={props.onDelete} 
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+        />
+      </FadeIn>
+    </div> 
   );
 }

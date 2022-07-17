@@ -1,1 +1,19 @@
+.freeze-all button {
+  opacity: 0.5;
+  pointer-events: none;
+}
 
+.freeze-all input, .freeze-all textarea, .freeze-all .ant-select-selector {
+  background-color: #f5f5f5 !important;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.freeze-all * {
+  pointer-events: none;
+}
+
+.anticon svg path {
+  transition: fill 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}

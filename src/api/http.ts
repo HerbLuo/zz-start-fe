@@ -1,7 +1,7 @@
 import { showWarn } from "../utils/dialog";
 import { I18nString, i18n } from "../i18n/core";
 import { autoLogin, goToLoginPage } from "./auto-login";
-import { TokenExpired, HTTP_STATUS_UNAUTHORIZED } from "./constants";
+import { TokenExpired, HTTP_STATUS_UNAUTHORIZED, TokenWrong } from "./constants";
 import { delay } from "../utils/delay";
 import { areDebug } from "../utils/env";
 import { withCredentials } from "./config";
@@ -57,7 +57,8 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
     if (data.alert) {
       throw await showWarn(data.alert, "[ALERT]服务器返回了一个alert", data);
     }
-    if (data.code === TokenExpired) {
+    if (data.code === TokenExpired || data.code === TokenWrong) {
+      sessionStorage.removeItem("logged_in");
       await autoLogin(true);
       if (options.autoLoginByRefreshToken !== false) {
         return await request(url, init, { autoLoginByRefreshToken: false });

@@ -2,6 +2,10 @@ import { CSSProperties } from "react";
 import {createStyle} from "../create-style";
 
 export const styles = createStyle({
+  sysQuery: {
+    background: "#FFF",
+    padding: "18px",
+  },
   userPlans: {
     display: "flex",
     alignItems: "center",
@@ -11,36 +15,25 @@ export const styles = createStyle({
     height: "32px",
     lineHeight: "32px",
   },
-  planButton: {
-    border: 0,
-    width: "100%",
-    height: "100%",
-    padding: "0 10px",
-    backgroundColor: "#FFFFFF00",
-    cursor: "pointer",
-  },
-  userPlan: (current: boolean) => ({
-    border: current ? undefined : "1px solid #c9c9c9",
+  planButtonBox: {
     marginRight: "8px",
+    position: "relative",
+  },
+  planButton: (active: boolean, editing: boolean) => ({
     minWidth: "68px",
     height: "32px",
-    fontSize: "12px",
-    borderRadius: "2px",
-    color: current ? "#FFF" : "#333",
-    backgroundColor: current ? "#007ACC" : "#FFF",
-    position: "relative",
+    ...(editing ? { cursor: "text" } : {}),
+    ...(active ? { pointerEvents: "none" } : {}),
   }),
   deleteIcon: {
     position: "absolute",
-    right: "-12px",
+    top: "-16px",
+    right: "-16px",
     zIndex: 9999,
 
-    top: "-12px",
-    borderRadius: "12px",
-    fontSize: "24px",
-    color: "#FFF",
-    backgroundColor: "#2e8ded",
-  } as CSSProperties,
+    padding: "7px",
+    fontSize: "18px",
+  },
   point: {
     position: "absolute",
     right: "-3px",
@@ -49,7 +42,7 @@ export const styles = createStyle({
     height: "6px",
     borderRadius: "50%",
     backgroundColor: "#333",
-  } as CSSProperties,
+  },
   filters: {
     display: "flex",
     marginBottom: "12px",
