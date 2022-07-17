@@ -143,12 +143,12 @@ export function SysQuery(props: SysQueryProps) {
               key={plan.id}
               text={plan.name}
               active={plan.id === activePlanId}
-              edited={!isEqual(
+              changed={!isEqual(
                 {plan, items}, 
                 plansServer?.find(p => p.plan.id === plan.id)
               )}
               editing={editing}
-              showDelete={editing && !plan.public}
+              editable={!plan.public}
               onClick={onPlanClick(plan.id)}
               onDelete={deletePlan(plan.id)}
             />
@@ -188,9 +188,9 @@ export function SysQuery(props: SysQueryProps) {
 interface PlanBtnProps {
   text: string;
   active: boolean;
-  edited: boolean;
+  changed: boolean;
   editing: boolean;
-  showDelete: boolean;
+  editable: boolean;
   onClick?: MouseEventHandler<HTMLDivElement>;
   onDelete?: MouseEventHandler<HTMLDivElement>;
 }
@@ -208,13 +208,13 @@ function PlanBtn(props: PlanBtnProps) {
     <div style={styles.planButtonBox}>
       <Button
         type={props.active ? "primary" : "default"}
-        style={styles.planButton(props.active, props.editing)}
+        style={styles.planButton(props.active, props.editing, props.editable)}
         onClick={props.onClick}
       >
         {props.text}
       </Button>
-      {props.edited ? <div style={styles.point}/> : null}
-      <FadeIn if={props.showDelete}>
+      {props.changed ? <div style={styles.point}/> : null}
+      <FadeIn if={props.editing && props.editable}>
         <CloseCircleTwoTone
           twoToneColor={hover ? "#FF5500" : "#FFA500"}
           style={styles.deleteIcon} 

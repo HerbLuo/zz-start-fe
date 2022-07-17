@@ -19,11 +19,11 @@ export const styles = createStyle({
     marginRight: "8px",
     position: "relative",
   },
-  planButton: (active: boolean, editing: boolean) => ({
+  planButton: (active: boolean, editing: boolean, editable: boolean) => ({
     minWidth: "68px",
     height: "32px",
-    ...(editing ? { cursor: "text" } : {}),
-    ...(active ? { pointerEvents: "none" } : {}),
+    ...((editing && editable) ? { cursor: "text" } : {}),
+    ...(active || (editing && !editable) ? { pointerEvents: "none" } : {}),
   }),
   deleteIcon: {
     position: "absolute",
