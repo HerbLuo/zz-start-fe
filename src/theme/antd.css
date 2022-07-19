@@ -2220,7 +2220,7 @@ li:last-child .ant-breadcrumb-separator {
   height: 32px;
   padding: 5.6px 12px;
   font-size: 12px;
-  border-radius: 0;
+  border-radius: 2px;
   color: rgba(0, 0, 0, 0.65);
   border-color: #CCC;
   background: #FFF;
@@ -2250,13 +2250,13 @@ li:last-child .ant-breadcrumb-separator {
   height: 40px;
   padding: 8px 16px;
   font-size: 14px;
-  border-radius: 0;
+  border-radius: 2px;
 }
 .ant-btn-sm {
   height: 24px;
   padding: 1.6px 8px;
   font-size: 12px;
-  border-radius: 0;
+  border-radius: 2px;
 }
 .ant-btn > a:only-child {
   color: currentcolor;
@@ -3406,7 +3406,7 @@ li:last-child .ant-breadcrumb-separator {
   height: 32px;
   padding: 4px 0;
   font-size: 14px;
-  border-radius: 0;
+  border-radius: 2px;
   vertical-align: -3px;
 }
 .ant-btn-icon-only > * {
@@ -3417,7 +3417,7 @@ li:last-child .ant-breadcrumb-separator {
   height: 40px;
   padding: 6.4px 0;
   font-size: 16px;
-  border-radius: 0;
+  border-radius: 2px;
 }
 .ant-btn-icon-only.ant-btn-lg > * {
   font-size: 16px;
@@ -3427,7 +3427,7 @@ li:last-child .ant-breadcrumb-separator {
   height: 24px;
   padding: 1.6px 0;
   font-size: 12px;
-  border-radius: 0;
+  border-radius: 2px;
 }
 .ant-btn-icon-only.ant-btn-sm > * {
   font-size: 12px;
@@ -3563,36 +3563,36 @@ a.ant-btn-icon-only > .anticon {
   margin-left: 0;
 }
 .ant-btn-group > .ant-btn:only-child {
-  border-radius: 0;
+  border-radius: 2px;
 }
 .ant-btn-group > span:only-child > .ant-btn {
-  border-radius: 0;
+  border-radius: 2px;
 }
 .ant-btn-group > .ant-btn:first-child:not(:last-child),
 .ant-btn-group > span:first-child:not(:last-child) > .ant-btn {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
 }
 .ant-btn-group > .ant-btn:last-child:not(:first-child),
 .ant-btn-group > span:last-child:not(:first-child) > .ant-btn {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
 }
 .ant-btn-group-sm > .ant-btn:only-child {
-  border-radius: 0;
+  border-radius: 2px;
 }
 .ant-btn-group-sm > span:only-child > .ant-btn {
-  border-radius: 0;
+  border-radius: 2px;
 }
 .ant-btn-group-sm > .ant-btn:first-child:not(:last-child),
 .ant-btn-group-sm > span:first-child:not(:last-child) > .ant-btn {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
 }
 .ant-btn-group-sm > .ant-btn:last-child:not(:first-child),
 .ant-btn-group-sm > span:last-child:not(:first-child) > .ant-btn {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
 }
 .ant-btn-group > .ant-btn-group {
   float: left;
@@ -3632,19 +3632,19 @@ a.ant-btn-icon-only > .anticon {
 }
 .ant-btn-group-rtl.ant-btn-group > .ant-btn:first-child:not(:last-child),
 .ant-btn-group-rtl.ant-btn-group > span:first-child:not(:last-child) > .ant-btn {
-  border-radius: 0 0 0 0;
+  border-radius: 0 2px 2px 0;
 }
 .ant-btn-group-rtl.ant-btn-group > .ant-btn:last-child:not(:first-child),
 .ant-btn-group-rtl.ant-btn-group > span:last-child:not(:first-child) > .ant-btn {
-  border-radius: 0 0 0 0;
+  border-radius: 2px 0 0 2px;
 }
 .ant-btn-group-rtl.ant-btn-group-sm > .ant-btn:first-child:not(:last-child),
 .ant-btn-group-rtl.ant-btn-group-sm > span:first-child:not(:last-child) > .ant-btn {
-  border-radius: 0 0 0 0;
+  border-radius: 0 2px 2px 0;
 }
 .ant-btn-group-rtl.ant-btn-group-sm > .ant-btn:last-child:not(:first-child),
 .ant-btn-group-rtl.ant-btn-group-sm > span:last-child:not(:first-child) > .ant-btn {
-  border-radius: 0 0 0 0;
+  border-radius: 2px 0 0 2px;
 }
 .ant-btn:focus > span,
 .ant-btn:active > span {

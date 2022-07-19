@@ -24,7 +24,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   await autoLoginP;
 
   if (areDebug) {
-    await delay(200);
+    await delay(300);
   }
 
   const response = await fetch(url, init).catch(async e => {

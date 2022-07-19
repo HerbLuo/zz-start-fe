@@ -37,6 +37,10 @@ export function nextId(len: number = 16, ...withSymbols: string[]): string {
   return new Array(loopTimes).fill(null).map(() => ss4(...withSymbols)).join("").substring(0, len);
 }
 
+export function nextIdNum(): number {
+  return 0 - ((Math.random() * 10 ** 9) | 0);
+}
+
 function ss4(...withSymbols: string[]): string {
   const randomNum = Math.floor(((Math.random() + 1) * ((CHARSET62.length + withSymbols.length) ** 4 - 1)));
   return baseXXEncodeReversed(randomNum, ...withSymbols).reverse().join("");

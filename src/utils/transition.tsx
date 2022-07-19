@@ -1,3 +1,8 @@
+/**
+ * FadeIn 淡入组件 props.if由false->true时，会先创建一个透明度为0的组件，之后逐渐变为1。
+ * FadeOut 淡出组件
+ * FadeInOut 淡入且淡出组件
+ */
 import React, { cloneElement, isValidElement, memo, useEffect, useState } from "react"
 import { _logger } from "./logger";
 

@@ -23,15 +23,22 @@ export const styles = createStyle({
     minWidth: "68px",
     height: "32px",
     ...((editing && editable) ? { cursor: "text" } : {}),
-    ...(active || (editing && !editable) ? { pointerEvents: "none" } : {}),
+    ...((editing ? !editable : active) ? { pointerEvents: "none" } : {}),
+  }),
+  planButtonText: (active: boolean) => ({
+    background: "#0000",
+    padding: 0,
+    border: 0,
+    margin: 0,
+    ...(active ? { color: "#FFF" } : {})
   }),
   deleteIcon: {
     position: "absolute",
-    top: "-16px",
-    right: "-16px",
+    top: "-15px",
+    right: "-15px",
     zIndex: 9999,
 
-    padding: "7px",
+    padding: "6px",
     fontSize: "18px",
   },
   point: {
@@ -64,14 +71,27 @@ export const styles = createStyle({
   } as CSSProperties),
   createItem: {
     marginLeft: "8px",
-    // color: "white",
-    // borderColor: "#33ab9f",
-    // backgroundColor: "#33ab9f",
   } as CSSProperties,
   query: {
     marginLeft: "8px",
-    // color: "white",
-    // borderColor: "#33ab9f",
-    // backgroundColor: "#33ab9f",
+  } as CSSProperties,
+  marginRight8: {
+    marginRight: "8px",
+  },
+  quickFilter: {
+    display: "flex",
+  },
+  filter: {
+    position: "relative",
+    display: "flex",
+    marginBottom: "10px",
+  } as CSSProperties,
+  deleteItem: {
+    position: "absolute",
+    right: "-22px",
+    top: 0,
+    color: "#fff",
+    borderColor: "#ff4d4f",
+    backgroundColor: "#ff4d4f",
   } as CSSProperties,
 });

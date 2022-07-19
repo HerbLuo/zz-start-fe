@@ -6,7 +6,7 @@
  */
 import { Input, InputProps, InputRef } from "antd";
 import Big from "big.js";
-import { AutoSizeInput } from "./input-suit-auto-size";
+import { AutoWidthInput } from "./input-suit-auto-width";
 import React, { useState, useEffect, useCallback } from "react";
 import { useRef } from "react";
 
@@ -237,7 +237,7 @@ export function NumericInput(props: Props) {
 
   if (autoWidth) {
     return (
-      <AutoSizeInput
+      <AutoWidthInput
         {...others}
         ref={inputRef}
         minWidth={58}

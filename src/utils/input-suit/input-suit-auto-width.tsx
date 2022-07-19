@@ -6,28 +6,41 @@
  * @version 0.0.1
  */
 import { Input, InputProps, InputRef } from "antd";
-import { useMemo, useState, useEffect, useCallback, useRef, forwardRef, ForwardedRef } from "react";
-import { displayWidth } from "./string-display-width";
+import { useMemo, useState, useEffect, useCallback, useRef, forwardRef, ForwardedRef, useLayoutEffect } from "react";
+import { displayWidth } from "../string-display-width";
 
 interface Props extends Omit<InputProps, "value"> {
   value: string | null | undefined;
-  extra?: number; // 宽度不足时，额外增加的宽度
+  /** 是否预留文字宽度，如果为否，输入框宽度将始终等于文字宽度。默认为是 */
+  gap?: boolean;
+  /** 预留文字宽度时，当前文字宽度+fontSize大于当前输入框宽度时，额外增加的宽度 */
+  extra?: number;
   minWidth?: number;
+  defaultWidth?: number;
   paddings?: number;
   version?: number; // 改变该值可以使该Pure组件重新render
 }
 
-export const AutoSizeInput = forwardRef((props: Props, ref: ForwardedRef<InputRef>) => {
-  const { value, extra, minWidth, paddings, style, ...others } = {
+export const AutoWidthInput = forwardRef((props: Props, ref: ForwardedRef<InputRef>) => {
+  const { 
+    extra, 
+    minWidth, 
+    paddings, 
+    style, 
+    gap, 
+    defaultWidth, 
+    value, 
+    ...others 
+  } = {
     extra: 17,
-    minWidth: 80,
+    minWidth: props.defaultWidth ? 0 : 80,
     paddings: 17,
     ...props,
   };
 
   const inputRef = useRef<HTMLInputElement | null>();
   const [inputElLoaded, setInputElLoaded] = useState(false);
-  const [width, setWidth] = useState(minWidth);
+  const [width, setWidth] = useState(defaultWidth || minWidth);
   const font = useMemo(() => {
     if (!inputElLoaded) {
       return null;
@@ -45,17 +58,23 @@ export const AutoSizeInput = forwardRef((props: Props, ref: ForwardedRef<InputRe
 
   useEffect(() => {
     if (!value || !font) {
-      setWidth(minWidth);
+      if (font) {
+        setWidth(minWidth);
+      }
       return;
     }
-    const nextWidth = (displayWidth(value, font.fontFamily, font.fontSize) | 0) + paddings + font.fontSize;
+    const curWidth = displayWidth(value, font.fontFamily, font.fontSize) | 0;
+    const nextWidth = gap ? curWidth + paddings + font.fontSize : curWidth;
+    console.log(nextWidth, width);
     if (nextWidth > width) {
-      setWidth(nextWidth + extra);
+      setWidth(gap ? nextWidth + extra : nextWidth);
     }
     if (nextWidth < width - extra) {
       setWidth(Math.max(minWidth, nextWidth));
     }
-  }, [minWidth, value, paddings, extra, font, width]);
+  }, [minWidth, value, paddings, extra, font, width, gap]);
+
+  console.log(width);
  
   const finalStyle: React.CSSProperties = useMemo(() => ({
     width,

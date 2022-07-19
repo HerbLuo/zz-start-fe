@@ -1,8 +1,7 @@
 import { Button, message } from "antd";
-import CloseCircleTwoTone from "@ant-design/icons/CloseCircleTwoTone";
 import DownOutlined from "@ant-design/icons/DownOutlined";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
-import { MouseEventHandler, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SysQueryElementEntity } from "../../types/SysQueryElementEntity";
 import { SysQueryUserPlan } from "../../types/SysQueryUserPlan";
 import { useStorageState } from "../hooks/use-storage-state";
@@ -12,21 +11,25 @@ import { showConfirm } from "../dialog";
 import { _logger } from "../logger";
 import { i18n as i18nGlobal } from "../../i18n/core";
 import { freeze } from "../freeze";
-import { FadeIn } from "../transition";
 import { delay } from "../delay";
+import { SysQueryUserPlanItemEntity } from "../../types/SysQueryUserPlanItemEntity";
+import { nextIdNum } from "../random";
+import { SysQueryPlanBtn } from "./SysQueryPlanBtn";
+import { SysQueryQuickFilters } from "./SysQueryQuickFilters";
 
 const logger = _logger(import.meta.url);
 const i18n = i18nGlobal.module("query");
 
 interface SysQueryProps {
   tag: string;
-  plansServer?: SysQueryUserPlan[];
+  serverPlan?: SysQueryUserPlan[];
   elements?: SysQueryElementEntity[];
 }
 
 export function SysQuery(props: SysQueryProps) {
-  const { tag, plansServer, elements } = props;
+  const { tag, serverPlan, elements } = props;
 
+  const serverPlanRef = useRef(serverPlan);
   const [plans, setPlans] = useState<SysQueryUserPlan[]>();
   const [editing, setEditing] = useState(false);
   const [more, setMore] = useStorageState(tag + ":more", false);
@@ -36,33 +39,57 @@ export function SysQuery(props: SysQueryProps) {
   );
   
   const activePlan = plans?.find(plan => plan.plan.id === activePlanId);
+  const setActivePlan = useCallback((
+    newPlan: SysQueryUserPlan | ((plan: SysQueryUserPlan) => SysQueryUserPlan)
+  ) => {
+    setPlans(plans => plans?.map(plan => {
+      if (plan.plan.id === activePlanId) {
+        if (typeof newPlan === "function") {
+          return newPlan(plan);
+        }
+        return newPlan;
+      }
+      return plan;
+    }));
+  }, [activePlanId]);
 
   useEffect(() => {
-    if (plansServer) {
+    serverPlanRef.current = serverPlan;
+    if (serverPlan) {
       setPlans(plans => {
         if (plans) {
-          logger.warn("plansServer发生变动", plans, plansServer);
+          logger.warn("plansServer发生变动", plans, serverPlan);
         } else {
-          logger.info(plansServer);
+          logger.info(serverPlan);
         }
-        return JSON.parse(JSON.stringify(plansServer))
+        return JSON.parse(JSON.stringify(serverPlan))
       });
     }
-  }, [plansServer]);
+  }, [serverPlan]);
 
+  // 设置默认激活的查询方案
   useEffect(() => {
     if (!activePlanId) {
-      const defaultId = plansServer?.find(({plan}) => plan.default)?.plan.id;
+      const defaultId = serverPlan?.find(({plan}) => plan.default)?.plan.id;
       if (defaultId) {
         setActivePlanId(defaultId);
-      } else if (plansServer?.length && plansServer.length > 0) {
-        setActivePlanId(plansServer[0].plan.id);
+      } else if (serverPlan?.length && serverPlan.length > 0) {
+        setActivePlanId(serverPlan[0].plan.id);
       }
     }
-  }, [activePlanId, plansServer, setActivePlanId]);
+  }, [activePlanId, serverPlan, setActivePlanId]);
 
   const onPlanClick = (planId: number) => () => {
-    console.log(planId);
+    setActivePlanId(planId);
+  }
+
+  const onPlanRename = (planId: number) => (name: string) => {
+    setPlans(plans => plans?.map(plan => {
+      if (plan.plan.id === planId) {
+        return {...plan, plan: {...plan.plan, name}};
+      }
+      return plan;
+    }));
   }
 
   const deletePlan = (planId: number) => async () => {
@@ -89,11 +116,17 @@ export function SysQuery(props: SysQueryProps) {
     setMore(!more);
   }, [more, setMore]);
 
-  const createItem = () => {
-    // setCurrentSetting({
-    //   items: [...currentSetting?.items!, {id: nextStr()} as UserSettingItem<keyof T>]
-    // });
-  }
+  const createItem = useCallback(() => {
+    setActivePlan(plan => {
+      return {
+        ...plan, 
+        items: [
+          ...plan.items, 
+          { id: nextIdNum() } as SysQueryUserPlanItemEntity
+        ]
+      };
+    })
+  }, [setActivePlan]);
 
   const query = useCallback(() => {
     // if (!setQuerySetting) {
@@ -102,26 +135,17 @@ export function SysQuery(props: SysQueryProps) {
     // setQuerySetting(currentSetting);
   }, []);
 
-  const reset = async () => {
+  const reset = useCallback(async () => {
     await showConfirm(i18n("确定重置该方案?"));
-    // const resetUserSettings = userSettings.map(setting => {
-    //   if (setting.id !== currentSettingId) {
-    //     return setting;
-    //   }
-    //   return settingsFromServerRef.current.find(setting => setting.id === currentSettingId)!;
-    // });
-    // setUserSettings(resetUserSettings);
-    // // setCurrentSetting({
-    // //   items: [{id: nextStr()} as UserSettingItem<keyof T>],
-    // // });
+    const activePlanServer = serverPlanRef.current
+      ?.find(({plan}) => plan.id === activePlanId);
+    setActivePlan(JSON.parse(JSON.stringify(activePlanServer)));
     message.success("重置成功");
-  }
+  }, [activePlanId, setActivePlan]);
 
   const clear = async () => {
     await showConfirm(i18n("确定清空该方案?"));
-    // setCurrentSetting({
-    //   items: [{id: nextStr()} as UserSettingItem<keyof T>],
-    // });
+    setActivePlan(plan => ({ ...plan, items: [] }))
     message.success("清空成功");
   }
 
@@ -139,90 +163,60 @@ export function SysQuery(props: SysQueryProps) {
         <span style={styles.userPlanLabel}>我的方案：</span>
         {!plans ? null : (<>
           {plans.map(({plan, items}) => (
-            <PlanBtn
+            <SysQueryPlanBtn
               key={plan.id}
               text={plan.name}
               active={plan.id === activePlanId}
               changed={!isEqual(
                 {plan, items}, 
-                plansServer?.find(p => p.plan.id === plan.id)
+                serverPlanRef.current?.find(p => p.plan.id === plan.id)
               )}
               editing={editing}
               editable={!plan.public}
               onClick={onPlanClick(plan.id)}
               onDelete={deletePlan(plan.id)}
+              onRename={onPlanRename(plan.id)}
             />
           ))}
           <Button type="link" onClick={edit}>{editing ? "确定" : "编辑"}</Button>
         </>)}
       </div>
       <div style={styles.filters}>
-        <span style={styles.filtersLabel}>快捷筛选：</span> 
-        <div style={styles.filterConditions(more)}>
-          {/* {quickFilters} */}
-        </div>
-        <Button 
-          style={styles.showMore} 
-          icon={<DownOutlined style={styles.showMoreIcon(more)} />} 
-          onClick={showMore}
-        />
-        <Button 
-          type="primary"
-          style={styles.createItem} 
-          icon={<PlusOutlined />}  
-          onClick={createItem}
-        />
-        <Button type="primary" style={styles.query} onClick={query}>查询</Button>
-        <Button style={{marginLeft: 8}} onClick={reset}>重置</Button>
-        <Button style={{marginLeft: 8}} onClick={clear}>清空</Button>
-        {activePlan?.plan.public 
-          ? null
-          : <Button type="link" onClick={save}>保存方案</Button>
-        }
-        <Button type="link" onClick={saveAs}>另存为方案</Button>
+        <span style={styles.filtersLabel}>快捷筛选：</span>
+        {activePlan && elements ? (
+          <>
+            <div style={styles.filterConditions(more)}>
+              <SysQueryQuickFilters
+                activePlan={activePlan}
+                elements={elements}
+              />
+            </div>
+            <Button 
+              style={styles.showMore} 
+              icon={<DownOutlined style={styles.showMoreIcon(more)} />} 
+              onClick={showMore}
+            />
+            <Button 
+              type="primary"
+              style={styles.createItem} 
+              icon={<PlusOutlined />}  
+              onClick={createItem}
+            />
+            <Button 
+              type="primary" 
+              style={styles.query} 
+              onClick={query}
+            >查询</Button>
+            <Button style={{marginLeft: 8}} onClick={reset}>重置</Button>
+            <Button style={{marginLeft: 8}} onClick={clear}>清空</Button>
+            {activePlan.plan.public 
+              ? null 
+              : <Button type="link" onClick={save}>保存方案</Button>
+            }
+            <Button type="link" onClick={saveAs}>另存为方案</Button>
+          </>
+        ) : null} 
       </div>
     </div>
-  );
-}
-
-interface PlanBtnProps {
-  text: string;
-  active: boolean;
-  changed: boolean;
-  editing: boolean;
-  editable: boolean;
-  onClick?: MouseEventHandler<HTMLDivElement>;
-  onDelete?: MouseEventHandler<HTMLDivElement>;
-}
-
-function PlanBtn(props: PlanBtnProps) {
-  const [hover, setHover] = useState(false);
-  const onMouseEnter: MouseEventHandler = useCallback((e) => {
-    setHover(true);
-  }, []);
-  const onMouseLeave: MouseEventHandler = useCallback((e) => {
-    setHover(false);
-  }, []);
-
-  return (
-    <div style={styles.planButtonBox}>
-      <Button
-        type={props.active ? "primary" : "default"}
-        style={styles.planButton(props.active, props.editing, props.editable)}
-        onClick={props.onClick}
-      >
-        {props.text}
-      </Button>
-      {props.changed ? <div style={styles.point}/> : null}
-      <FadeIn if={props.editing && props.editable}>
-        <CloseCircleTwoTone
-          twoToneColor={hover ? "#FF5500" : "#FFA500"}
-          style={styles.deleteIcon} 
-          onClick={props.onDelete} 
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
-        />
-      </FadeIn>
-    </div> 
   );
 }

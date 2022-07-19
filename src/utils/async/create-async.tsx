@@ -104,5 +104,3 @@ function useArgs<A extends any[]>(args: A): A {
   }
   return argsRef.current as A;
 }
-
-// const DivA = createAsync("div", ["children"]);
