@@ -8,7 +8,7 @@ export type PromiseOr<T> = T | Promise<T>;
 
 export type ArrayOr<T> = T | T[];
 
-export type PromiseResolveType<T> = T extends Promise<infer R> ? R : never;
+export type ResolvedType<T> = T extends Promise<infer R> ? R : never;
 
 export type Pair<P, Q> = [P, Q];
 
@@ -17,4 +17,8 @@ export type UnionToIntersection<U> =
 
 export type Promised<O, K extends keyof O> = Omit<O, K> & {
   [key in K]: PromiseOr<O[K]>;
+}
+
+export type UnPromised<O, K extends keyof O> = Omit<O, K> & {
+  [key in K]: ResolvedType<O[K]>;
 }

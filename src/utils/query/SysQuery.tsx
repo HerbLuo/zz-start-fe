@@ -1,14 +1,13 @@
 import { Button, message } from "antd";
 import DownOutlined from "@ant-design/icons/DownOutlined";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { SysQueryElementEntity } from "../../types/SysQueryElementEntity";
 import { SysQueryUserPlan } from "../../types/SysQueryUserPlan";
 import { useStorageState } from "../hooks/use-storage-state";
 import isEqual from "lodash.isequal";
 import { styles } from "./SysQuery.style";
 import { showConfirm } from "../dialog";
-import { _logger } from "../logger";
 import { i18n as i18nGlobal } from "../../i18n/core";
 import { freeze } from "../freeze";
 import { delay } from "../delay";
@@ -16,29 +15,42 @@ import { SysQueryUserPlanItemEntity } from "../../types/SysQueryUserPlanItemEnti
 import { nextIdNum } from "../random";
 import { SysQueryPlanBtn } from "./SysQueryPlanBtn";
 import { SysQueryQuickFilters } from "./SysQueryQuickFilters";
+import { SysQueryUserPlanRes } from "../../types/SysQueryUserPlanRes";
+import { userId } from "../site";
 
-const logger = _logger(import.meta.url);
 const i18n = i18nGlobal.module("query");
 
+type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 interface SysQueryProps {
   tag: string;
-  serverPlan?: SysQueryUserPlan[];
-  elements?: SysQueryElementEntity[];
+  serverUserPlan: SysQueryUserPlanRes | undefined;
+  setActivePlanForFetch: SetState<SysQueryUserPlan | undefined>;
 }
 
 export function SysQuery(props: SysQueryProps) {
-  const { tag, serverPlan, elements } = props;
+  const { tag, serverUserPlan, setActivePlanForFetch } = props;
 
-  const serverPlanRef = useRef(serverPlan);
   const [plans, setPlans] = useState<SysQueryUserPlan[]>();
-  const [editing, setEditing] = useState(false);
-  const [more, setMore] = useStorageState(tag + ":more", false);
+  const [elements, setElements] = useState<SysQueryElementEntity[]>();
   const [activePlanId, setActivePlanId] = useStorageState<number | null>(
-    tag + ":active-plan", 
+    `${tag}:${userId()}:active-plan`, 
     null,
   );
-  
+  const serverPlanRef = useRef(serverUserPlan?.plans);
+  const [editing, setEditing] = useState(false);
+  const [more, setMore] = useStorageState(tag + ":more", false);
   const activePlan = plans?.find(plan => plan.plan.id === activePlanId);
+
+  useEffect(() => {
+    if (!serverUserPlan) {
+      return;
+    }
+    const { plans, elements } = serverUserPlan;
+    setPlans(JSON.parse(JSON.stringify(plans)));
+    setElements(elements);
+    serverPlanRef.current = plans;
+  }, [serverUserPlan]);
+
   const setActivePlan = useCallback((
     newPlan: SysQueryUserPlan | ((plan: SysQueryUserPlan) => SysQueryUserPlan)
   ) => {
@@ -51,24 +63,11 @@ export function SysQuery(props: SysQueryProps) {
       }
       return plan;
     }));
-  }, [activePlanId]);
-
-  useEffect(() => {
-    serverPlanRef.current = serverPlan;
-    if (serverPlan) {
-      setPlans(plans => {
-        if (plans) {
-          logger.warn("plansServer发生变动", plans, serverPlan);
-        } else {
-          logger.info(serverPlan);
-        }
-        return JSON.parse(JSON.stringify(serverPlan))
-      });
-    }
-  }, [serverPlan]);
+  }, [activePlanId, setPlans]);
 
   // 设置默认激活的查询方案
   useEffect(() => {
+    const serverPlan = serverPlanRef.current;
     if (!activePlanId) {
       const defaultId = serverPlan?.find(({plan}) => plan.default)?.plan.id;
       if (defaultId) {
@@ -77,7 +76,7 @@ export function SysQuery(props: SysQueryProps) {
         setActivePlanId(serverPlan[0].plan.id);
       }
     }
-  }, [activePlanId, serverPlan, setActivePlanId]);
+  }, [activePlanId, setActivePlanId]);
 
   const onPlanClick = (planId: number) => () => {
     setActivePlanId(planId);
@@ -129,11 +128,10 @@ export function SysQuery(props: SysQueryProps) {
   }, [setActivePlan]);
 
   const query = useCallback(() => {
-    // if (!setQuerySetting) {
-    //   return showWarnWithoutSign("未配置userSettingRef, 无法实现查询");
-    // }
-    // setQuerySetting(currentSetting);
-  }, []);
+    if (activePlan) {
+      setActivePlanForFetch(activePlan);
+    }
+  }, [activePlan, setActivePlanForFetch]);
 
   const reset = useCallback(async () => {
     await showConfirm(i18n("确定重置该方案?"));

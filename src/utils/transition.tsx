@@ -51,7 +51,7 @@ export function FadeInOut(props: Props): JSX.Element | null {
         clearTimeout(timer);
       }
     };
-  }, [vIf, fadeOut]); 
+  }, [vIf, fadeIn, fadeOut, duration]); 
 
   if (!visible) {
     return null;

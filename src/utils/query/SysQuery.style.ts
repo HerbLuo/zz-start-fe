@@ -1,5 +1,4 @@
-import { CSSProperties } from "react";
-import {createStyle} from "../create-style";
+import { createStyle } from "../create-style";
 
 export const styles = createStyle({
   sysQuery: {
@@ -53,28 +52,28 @@ export const styles = createStyle({
   filters: {
     display: "flex",
     marginBottom: "12px",
-  } as CSSProperties,
+  },
   filtersLabel: {
     padding: "4px 0",
-  } as CSSProperties,
+  },
   filterConditions: (more: boolean) => ({
     overflow: more ? undefined : "hidden",
     height: more ? undefined : "36px",
-  } as CSSProperties),
+  }),
   showMore: {
     marginLeft: "40px",
-  } as CSSProperties,
+  },
   showMoreIcon: (more: boolean) => ({
     transformOrigin: "50% 40%",
     transform: more ? "rotate(180deg)" : undefined,
     transition: "all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1) 0s",
-  } as CSSProperties),
+  }),
   createItem: {
     marginLeft: "8px",
-  } as CSSProperties,
+  },
   query: {
     marginLeft: "8px",
-  } as CSSProperties,
+  },
   marginRight8: {
     marginRight: "8px",
   },
@@ -85,7 +84,7 @@ export const styles = createStyle({
     position: "relative",
     display: "flex",
     marginBottom: "10px",
-  } as CSSProperties,
+  },
   deleteItem: {
     position: "absolute",
     right: "-22px",
@@ -93,5 +92,5 @@ export const styles = createStyle({
     color: "#fff",
     borderColor: "#ff4d4f",
     backgroundColor: "#ff4d4f",
-  } as CSSProperties,
+  },
 });

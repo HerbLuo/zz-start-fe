@@ -6,7 +6,7 @@
  * @version 0.0.1
  */
 import { Input, InputProps, InputRef } from "antd";
-import { useMemo, useState, useEffect, useCallback, useRef, forwardRef, ForwardedRef, useLayoutEffect } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef, forwardRef, ForwardedRef } from "react";
 import { displayWidth } from "../string-display-width";
 
 interface Props extends Omit<InputProps, "value"> {
