@@ -24,6 +24,7 @@ export interface ApiSchemaOperation {
   deps: string[];
   jsonBody?: ApiSchemaJsonBody;
   response: ApiSchemaResponse;
+  async: boolean;
   summary?: string;
 }
 

@@ -1,5 +1,5 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<b49c5231f79720b8fb2bd491f87f26059268ef12ed96dcb4196df58f8fb4b18c>HASH#
+// 禁止修改 #HASH<7214c153508bf040b0409dda62b363281013c6916881ebd7d91bc2d80e76b1fe>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 import { basePath } from "./config";
@@ -11,7 +11,7 @@ import { SysQueryUserPlanRes } from "../types/SysQueryUserPlanRes";
 
 /** 使用查询方案查询 */
 async function getData(body: SysQueryDataReq): Promise<SysQueryDataRes> {
-  return await post(`${basePath}/query/data`, body);
+  return await post(`${basePath}/query/data`, body, { Accept: "application/x-ndjson" });
 }
 
 /** 获取默认的查询方案 */

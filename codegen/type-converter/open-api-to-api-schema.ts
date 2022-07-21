@@ -119,6 +119,7 @@ export function openApiToApiSchemas(openApi: OpenApi3, typeSchemas: ZzTypeSchema
       }
 
       const openApi3ResponseOrRef = operation.responses[200] || operation.responses.default;
+      let async: boolean = false;
       let response: ApiSchemaResponse = { type: "unknown" };
       if (openApi3ResponseOrRef && !areRef(openApi3ResponseOrRef)) {
         const schema = openApi3ResponseOrRef.content?.["*/*"]?.schema;
@@ -126,6 +127,7 @@ export function openApiToApiSchemas(openApi: OpenApi3, typeSchemas: ZzTypeSchema
           const hasReqResType = areRef(schema) 
             ? openApi3ReferenceToTsType(schema, typeSchemas) 
             : jsonSchemaToTsType(schema);
+          async = hasReqResType.type.startsWith("Async<");
           const tsType = typeSchemas.formatTsType(hasReqResType);
           response = {
             type: tsType.type,
@@ -146,6 +148,7 @@ export function openApiToApiSchemas(openApi: OpenApi3, typeSchemas: ZzTypeSchema
         deps,
         jsonBody,
         response,
+        async,
         summary,
       };
       operationSchemas.push(apiSchemaOperation);

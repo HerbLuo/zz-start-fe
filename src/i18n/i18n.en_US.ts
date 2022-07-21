@@ -6,6 +6,7 @@ export const i18n: I18nMessages<"global"> = {
   "服务器出了点小问题, 尝试联系支持人员。": "There is a problem on the server, try to contact support.",
   "服务器出了些问题, 尝试联系支持人员。": "Something went wrong on the server, try to contact support.",
   "登陆失败，{}秒后自动跳转": "",
+  "chunked类型的响应体为空。": "",
 };
 
 configI18n("en_US", "global", i18n);

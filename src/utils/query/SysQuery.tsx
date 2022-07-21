@@ -63,7 +63,7 @@ export function SysQuery(props: SysQueryProps) {
       }
       return plan;
     }));
-  }, [activePlanId, setPlans]);
+  }, [activePlanId]);
 
   // 设置默认激活的查询方案
   useEffect(() => {
@@ -77,6 +77,14 @@ export function SysQuery(props: SysQueryProps) {
       }
     }
   }, [activePlanId, setActivePlanId]);
+
+  const fetched = useRef(false);
+  useEffect(() => {
+    if (activePlan && !fetched.current) {
+      setActivePlanForFetch(activePlan);
+      fetched.current = true;
+    }
+  }, [activePlan, setActivePlanForFetch]);
 
   const onPlanClick = (planId: number) => () => {
     setActivePlanId(planId);

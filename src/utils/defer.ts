@@ -9,7 +9,7 @@
  * await defered.promise; 
  * @version 0.0.1
  */
-interface IDefer<T> {
+export interface IDefer<T> {
   promise: Promise<T>;
   resolve: (d: T) => void;
   reject: (e: any) => void;

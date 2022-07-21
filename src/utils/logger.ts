@@ -1,4 +1,5 @@
 import { isValidElement } from "react";
+import { delay } from "./delay";
 import { LoggedError, TippedError } from "./errors";
 import { cursorQueryAndDelete } from "./indexeddb-helper";
 import { nextId } from "./random";
@@ -66,7 +67,7 @@ function toLogMsg(obj: unknown, level: number = 0): string | GuessString {
     obj = [...obj];
   }
   if (obj instanceof Array) {
-    return JSON.stringify(obj);
+    return `[${obj.map(o => toLogMsg(o, level + 1)).join(",")}]`;
   }
   if (obj instanceof Date) {
     return formatDate(obj);
@@ -116,15 +117,16 @@ function toLogMsg(obj: unknown, level: number = 0): string | GuessString {
       const promiseMsgs = Promise.all(msgs.map(async ([k, v]) => 
         `${k}: ${typeof v === "string" ? v : await v.value}`
       )).then(msgs => msgs.join(", "));
+      const promiseMsgsWithTimeout = Promise.race([promiseMsgs, delay(60 * 1000)]);
 
       return {
         guess: `Object: Promise<${pid}>, resolving: {${guessMsgs}}`,
-        promise: promiseMsgs
+        promise: promiseMsgsWithTimeout
           .catch(e => Promise.reject(
             `Object: Promise<${pid}>, rejected. ${e}`
           ))
           .then(res => `Object: Promise<${pid}>, resolved: {${res}}`),
-        value: promiseMsgs.then(v => `Object: {${v}}`),
+        value: promiseMsgsWithTimeout.then(v => `Object: {${v}}`),
       }
     } else {
       const isBean = Reflect.getPrototypeOf(obj) === BeanProp;

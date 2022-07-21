@@ -12,7 +12,7 @@ async function {{operationName}}(
   {{~/each}}
   {{~#if jsonBody}}{{#if parameters}}, {{/if}}{{jsonBody.name}}: {{jsonBody.type}}{{/if~}}
 ): Promise<{{response.type}}> {
-  return await {{method}}(`${basePath}{{path}}`{{~#if jsonBody}}, {{jsonBody.name}}{{/if}});
+  return await {{method}}(`${basePath}{{path}}`{{~#if jsonBody}}, {{jsonBody.name}}{{/if}}{{~#if async}}, { Accept: "application/x-ndjson" }{{/if}});
 }
 
 {{/each}}

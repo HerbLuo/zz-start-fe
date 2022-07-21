@@ -72,11 +72,12 @@ export const showWarn: ShowWarn = async (
   ...logs: any[]
 ) => {
   const id = nextGoodStr(8, true);
-  logger.args.info(showWarn, { id, alert, logs });
+  logger.args.info(showWarn, { alert });
 
   const dialogDefer = defer<void>();
 
   const withId = logs.length > 0;
+  logger.warn(id, ...logs);
   const alertEl = isValidElement(alert) 
     ? alert 
     : <AsyncText style={warnTextStyle} children={alert}/>;
