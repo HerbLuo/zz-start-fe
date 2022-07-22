@@ -17,6 +17,7 @@ import { SysQueryPlanBtn } from "./SysQueryPlanBtn";
 import { SysQueryQuickFilters } from "./SysQueryQuickFilters";
 import { SysQueryUserPlanRes } from "../../types/SysQueryUserPlanRes";
 import { userId } from "../site";
+import { cloneBean } from "../clone";
 
 const i18n = i18nGlobal.module("query");
 
@@ -38,7 +39,7 @@ export function SysQuery(props: SysQueryProps) {
   );
   const serverPlanRef = useRef(serverUserPlan?.plans);
   const [editing, setEditing] = useState(false);
-  const [more, setMore] = useStorageState(tag + ":more", false);
+  const [more, setMore] = useStorageState(`${tag}:${userId()}:more`, false);
   const activePlan = plans?.find(plan => plan.plan.id === activePlanId);
 
   useEffect(() => {
@@ -46,7 +47,7 @@ export function SysQuery(props: SysQueryProps) {
       return;
     }
     const { plans, elements } = serverUserPlan;
-    setPlans(JSON.parse(JSON.stringify(plans)));
+    setPlans(cloneBean(plans));
     setElements(elements);
     serverPlanRef.current = plans;
   }, [serverUserPlan]);
@@ -145,7 +146,9 @@ export function SysQuery(props: SysQueryProps) {
     await showConfirm(i18n("确定重置该方案?"));
     const activePlanServer = serverPlanRef.current
       ?.find(({plan}) => plan.id === activePlanId);
-    setActivePlan(JSON.parse(JSON.stringify(activePlanServer)));
+      if (activePlanServer) {
+        setActivePlan(cloneBean(activePlanServer));
+      }
     message.success("重置成功");
   }, [activePlanId, setActivePlan]);
 

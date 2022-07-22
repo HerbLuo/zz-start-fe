@@ -6,6 +6,7 @@ import { SysQueryUserPlan } from "../../types/SysQueryUserPlan";
 import { SysQueryUserPlanItemEntity } from "../../types/SysQueryUserPlanItemEntity";
 import { createAsync } from "../async/create-async";
 import { useStorageState } from "../hooks/use-storage-state";
+import { userId } from "../site";
 import { styles } from "./SysQuery.style";
 
 interface QuickFiltersProps {
@@ -38,7 +39,7 @@ function SysQueryQuickFilter(props: QuickFilterProps) {
   const { elements, item } = props;
 
   const [expand, setExpand] = useStorageState(
-    item.sysQueryTagCnRedundant + ":expand", 
+    `${item.sysQueryTagCnRedundant}:${userId()}:expand`, 
     false,
   );
 

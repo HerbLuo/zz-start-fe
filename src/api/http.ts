@@ -6,7 +6,7 @@ import { delay } from "../utils/delay";
 import { areDebug } from "../utils/env";
 import { withCredentials } from "./config";
 import { defer, IDefer } from "../utils/defer";
-import { logger } from "../utils/logger";
+import { javaBeanReviver } from "../utils/json-parse-reviver";
 
 export const PostHeaders = {
   "Content-Type": "application/json"
@@ -98,9 +98,8 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
 
 async function parseJson(json: string): Promise<{}> {
   try {
-    return JSON.parse(json);
+    return JSON.parse(json, javaBeanReviver);
   } catch (e) {
-    logger.info()
     throw await showWarn(i18n("解析JSON失败, 可能是网络不稳定, 尝试刷新。"), e, "text: ", json);
   }
 }
