@@ -1,11 +1,15 @@
 import { TablePaginationConfig, TableProps } from "antd";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { i18n as i18nGlobal } from "../../i18n/core";
 import { SysQueryDataReq } from "../../types/SysQueryDataReq";
 import { SysQueryDataRes } from "../../types/SysQueryDataRes";
+import { I18n } from "../async/components";
 import { useStorageState } from "../hooks/use-storage-state";
 import { logger } from "../logger";
 import { userId } from "../site";
 import { PromiseOr } from "../ts";
+
+const i18n = i18nGlobal.module("table");
 
 type ReplaceReq = (sysQueryDataReq: SysQueryDataReq) => SysQueryDataReq;
 
@@ -15,7 +19,7 @@ export type FetchData = (
   replaceReq?: ReplaceReq,
 ) => Promise<SysQueryDataRes>;
 
-interface UseTableOptions<T> {
+interface UseTableOptions {
   pagesize?: number;
   pagination?: boolean;
   beforePageChange?: (page: number) => void;
@@ -46,7 +50,7 @@ export interface UseTableResult<T> {
 export function useTable<T extends {}>(
   tag: string, 
   fetchData: FetchData, 
-  options: UseTableOptions<T> = {},
+  options: UseTableOptions = {},
 ) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<T[]>([]);
@@ -128,7 +132,7 @@ export function useTable<T extends {}>(
   }, [setPagesize]);
 
   const showTotal = useCallback((t: number) => {
-    return total === undefined ? "loading" : `共 ${t} 条`;
+    return total === undefined ? "loading" : <I18n text={i18n("共 {} 条", t)}/>;
   }, [total]);
 
   const pagination: false | TablePaginationConfig = optionPagination === false 

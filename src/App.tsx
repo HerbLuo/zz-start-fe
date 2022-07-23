@@ -33,7 +33,7 @@ function App() {
   );
 }
 
-function I18nApp() {
+function WithI18nApp() {
   const areZhCN = currentLang === "zh_CN";
   const [antdLang, setAntdLang] = useState<typeof zhCN>();
 
@@ -55,4 +55,4 @@ function I18nApp() {
   );
 }
 
-export default I18nApp;
+export default WithI18nApp;

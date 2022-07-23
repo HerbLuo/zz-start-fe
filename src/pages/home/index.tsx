@@ -3,6 +3,8 @@ import { useTable } from "../../utils/table";
 import { Table } from "antd";
 import { ColumnType } from "antd/lib/table";
 import { useSelection } from "../../utils/hooks/use-selection";
+import { I18n } from "../../utils/async/components";
+import { i18n } from "../../i18n/core";
 
 export default function HomePage() {
   const tag = "zi_dian_guan_li";
@@ -26,7 +28,7 @@ export default function HomePage() {
       {el}
       <div className="zz-wrapper-content">
         <div className="zz-wrapper-title">
-          <b>列表</b>
+          <b><I18n text={i18n("列表")}/></b>
           <div>
             {/* <Button style={marginLeft8} onClick={newItem}>新增</Button> */}
             {/* <Button style={marginLeft8} onClick={}>重置</Button> */}
