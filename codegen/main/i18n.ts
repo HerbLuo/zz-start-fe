@@ -84,12 +84,13 @@ for (const member of I18nMessageKeys.members) {
     const localeFilename = `i18n.${locale}${module === "global" ? "" : `.${module}`}.ts`;
     const localeFilepath = path.resolve(srcDirI18n, localeFilename);
 
+    let localeCode: string | null = null;
     let pre: string | null = null;
     let suf: string | null = null;
     let msgs: string | null = null;
 
     if (fs.existsSync(localeFilepath)) {
-      const localeCode = fs.readFileSync(localeFilepath, { encoding: "utf-8" });
+      localeCode = fs.readFileSync(localeFilepath, { encoding: "utf-8" });
       const matched = localeCode.match(/([\s\S]+i18n: I18nMessages<"[^"]+"> = \{)([\s\S]+)(\};?\s+configI18n\("[\s\S]+)/);
       if (!matched) {
         throw new Error("无法解析 " + localeFilename);
@@ -119,11 +120,13 @@ for (const member of I18nMessageKeys.members) {
       };
 
       configI18n("${locale}", "${module}", i18n);
-    `);
+    ` + "\n");
     // 不存在则创建
-    console.log(pre);
-    console.log(msgs);
-    console.log(suf);
-
+    const newLocaleCode = `${pre}${msgs}${suf}`;
+    if (newLocaleCode !== localeCode) {
+      console.log(`生成${localeFilename}中。`);
+      fs.writeFileSync(localeFilepath, newLocaleCode);
+      console.log(`生成完毕。`);
+    }
   }
 }
