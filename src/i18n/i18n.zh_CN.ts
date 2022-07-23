@@ -5,7 +5,7 @@ export interface I18nMessageKeys {
   | "服务器出了点小问题, 尝试联系支持人员。" 
   | "服务器出了些问题, 尝试联系支持人员。"
   | "登陆失败，{}秒后自动跳转"
-  | "chunked类型的响应体为空。"
+  | "application/x-ndjson类型的响应体为空。"
   | "列表"
   ,
   query:
@@ -14,6 +14,8 @@ export interface I18nMessageKeys {
   | "确定删除方案：《{}》?"
   | "我的方案："
   | "快捷筛选："
+  | "编辑"
+  | "确定"
   | "查询"
   | "重置"
   | "清空"

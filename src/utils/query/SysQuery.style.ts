@@ -11,6 +11,8 @@ export const styles = createStyle({
     marginBottom: "12px",
   },
   userPlanLabel: {
+    display: "inline-block",
+    width: "72px",
     height: "32px",
     lineHeight: "32px",
   },
@@ -54,6 +56,8 @@ export const styles = createStyle({
     marginBottom: "12px",
   },
   filtersLabel: {
+    display: "inline-block",
+    width: "72px",
     padding: "4px 0",
   },
   filterConditions: (more: boolean) => ({

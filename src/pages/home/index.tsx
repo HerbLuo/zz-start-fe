@@ -3,7 +3,7 @@ import { useTable } from "../../utils/table";
 import { Table } from "antd";
 import { ColumnType } from "antd/lib/table";
 import { useSelection } from "../../utils/hooks/use-selection";
-import { I18n } from "../../utils/async/components";
+import { I18n } from "../../i18n/use-i18n";
 import { i18n } from "../../i18n/core";
 
 export default function HomePage() {

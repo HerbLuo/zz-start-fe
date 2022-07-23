@@ -7,7 +7,7 @@
  * <AsyncInput value={Promise.resolve("loaded")} disabled={Promise.resolve(true)}/>
  * @version 0.0.1
  */
-import { ComponentPropsWithRef, ElementType, FC, useEffect, useMemo, useRef, useState } from "react"
+import { ComponentPropsWithRef, ElementType, FC, memo, useEffect, useMemo, useRef, useState } from "react"
 import { areEqual } from "../array";
 import { Promised } from "../ts";
 
@@ -43,7 +43,7 @@ export const createAsync: CreateAsync =
   keys: K[], 
   options: CreateAsyncOptions<C, K> = {}
 ) => {
-  return function AsyncWrapper(props: Promised<PropsWithRef<C>, K>) {
+  return memo(function AsyncWrapper(props: Promised<PropsWithRef<C>, K>) {
     const [syncedProps, setSyncedProps] = useState<SyncedProps<C>>(() => {
       const sp: SyncedProps<C> = {};
       const defAsyncProps = options.default || {} as DefaultAsyncProps<C, K>;
@@ -94,7 +94,7 @@ export const createAsync: CreateAsync =
     };
     const componentProps = componentPropsPart as PropsWithRef<C>;
     return <Component  {...componentProps}/>
-  };
+  });
 };
 
 function useArgs<A extends any[]>(args: A): A {

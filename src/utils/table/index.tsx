@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { i18n as i18nGlobal } from "../../i18n/core";
 import { SysQueryDataReq } from "../../types/SysQueryDataReq";
 import { SysQueryDataRes } from "../../types/SysQueryDataRes";
-import { I18n } from "../async/components";
+import { I18n } from "../../i18n/use-i18n";
 import { useStorageState } from "../hooks/use-storage-state";
 import { logger } from "../logger";
 import { userId } from "../site";

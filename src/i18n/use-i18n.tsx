@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { i18n, I18nMessageKeys, Modules } from "./core";
+import { PromiseOr } from "../utils/ts";
+import { i18n, I18nMessageKeys, I18nString, Modules } from "./core";
 
 interface UseI18nFn<M extends Modules> {
   (key: I18nMessageKeys[M], ...args: any[]): string;
@@ -38,4 +39,23 @@ interface UseI18n extends UseI18nFn<"global"> {
 }
 
 export const useI18n: UseI18n = makeUseI18n("global") as any;
+export const useI18nGlobal = useI18n;
 useI18n.module = (module) => makeUseI18n(module);
+
+export function I18n(props: { text: PromiseOr<I18nString> }) {
+  const propText = props.text;
+  const isPromise = typeof propText !== "string";
+  const [text, setText] = useState(() => isPromise ? null : propText);
+
+  useEffect(() => {
+    if (isPromise) {
+      propText.then(t => {
+        if (t !== text) {
+          setText(t);
+        }
+      });
+    }
+  }, [text, propText]); 
+
+  return <>{text}</>;
+}

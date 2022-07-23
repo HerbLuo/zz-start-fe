@@ -8,7 +8,7 @@ import { useStorageState } from "../hooks/use-storage-state";
 import isEqual from "lodash.isequal";
 import { styles } from "./SysQuery.style";
 import { showConfirm } from "../dialog";
-import { i18n as i18nGlobal } from "../../i18n/core";
+import { i18nGlobal } from "../../i18n/core";
 import { freeze } from "../freeze";
 import { delay } from "../delay";
 import { SysQueryUserPlanItemEntity } from "../../types/SysQueryUserPlanItemEntity";
@@ -18,6 +18,7 @@ import { SysQueryQuickFilters } from "./SysQueryQuickFilters";
 import { SysQueryUserPlanRes } from "../../types/SysQueryUserPlanRes";
 import { userId } from "../site";
 import { cloneBean } from "../clone";
+import { I18n } from "../../i18n/use-i18n";
 
 const i18n = i18nGlobal.module("query");
 
@@ -169,7 +170,7 @@ export function SysQuery(props: SysQueryProps) {
   return (
     <div className="sys-query" style={styles.sysQuery}>
       <div style={styles.userPlans}>
-        <span style={styles.userPlanLabel}>我的方案：</span>
+        <span style={styles.userPlanLabel}><I18n text={i18n("我的方案：")}/></span>
         {!plans ? null : (<>
           {plans.map(({plan, items}) => (
             <SysQueryPlanBtn
@@ -187,11 +188,13 @@ export function SysQuery(props: SysQueryProps) {
               onRename={onPlanRename(plan.id)}
             />
           ))}
-          <Button type="link" onClick={edit}>{editing ? "确定" : "编辑"}</Button>
+          <Button type="link" onClick={edit}>
+            {editing ? <I18n text={i18n("确定")}/> : <I18n text={i18n("编辑")}/>}
+          </Button>
         </>)}
       </div>
       <div style={styles.filters}>
-        <span style={styles.filtersLabel}>快捷筛选：</span>
+        <span style={styles.filtersLabel}><I18n text={i18n("快捷筛选：")}/></span>
         {activePlan && elements ? (
           <>
             <div style={styles.filterConditions(more)}>
@@ -215,14 +218,26 @@ export function SysQuery(props: SysQueryProps) {
               type="primary" 
               style={styles.query} 
               onClick={query}
-            >查询</Button>
-            <Button style={{marginLeft: 8}} onClick={reset}>重置</Button>
-            <Button style={{marginLeft: 8}} onClick={clear}>清空</Button>
+            >
+              <I18n text={i18n("查询")}/>
+            </Button>
+            <Button style={{marginLeft: 8}} onClick={reset}>
+              <I18n text={i18n("重置")}/>
+            </Button>
+            <Button style={{marginLeft: 8}} onClick={clear}>
+              <I18n text={i18n("清空")}/>
+            </Button>
             {activePlan.plan.public 
               ? null 
-              : <Button type="link" onClick={save}>保存方案</Button>
+              : (
+                <Button type="link" onClick={save}>
+                  <I18n text={i18n("保存方案")}/>
+                </Button>
+              )
             }
-            <Button type="link" onClick={saveAs}>另存为方案</Button>
+            <Button type="link" onClick={saveAs}>
+              <I18n text={i18n("另存为方案")}/>
+            </Button>
           </>
         ) : null} 
       </div>

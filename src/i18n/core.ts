@@ -89,3 +89,4 @@ export function createI18n(locale: SupportedLocale): I18n {
 } 
 
 export const i18n = createI18n(currentLang);
+export const i18nGlobal = i18n;

@@ -104,10 +104,11 @@ for (const member of I18nMessageKeys.members) {
     msgs = msgs?.trim() ?? null;
     msgs = msgs?.endsWith(",") ? msgs.substring(0, msgs.length - 1) : msgs;
     const msgRecord = msgs === null ? {} : JSON.parse(`{${msgs}}`);
+    const msgRecordSorted: Record<string, string> = {};
     for (const mainLangMsg of mainLangMsgs) {
-      msgRecord[mainLangMsg] ||= "";
+      msgRecordSorted[mainLangMsg] = msgRecord[mainLangMsg] || "";
     }
-    msgs = JSON.stringify(msgRecord, undefined, 2);
+    msgs = JSON.stringify(msgRecordSorted, undefined, 2);
     msgs = `\n  ${msgs.substring(1, msgs.length - 1).trim()},\n`;
 
     // 处理pre, suf

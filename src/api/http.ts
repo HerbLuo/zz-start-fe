@@ -27,7 +27,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   await autoLoginP;
 
   if (areDebug) {
-    await delay(300);
+    // await delay(300);
   }
 
   const response = await fetch(url, init).catch(async e => {
@@ -41,7 +41,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   if (isNdJson) {
     const stream = response.body;
     if (!stream) {
-      throw await showWarn(i18n("chunked类型的响应体为空。"));
+      throw await showWarn(i18n("application/x-ndjson类型的响应体为空。"));
     }
     reader = stream.getReader();
     const res = await reader.read();
