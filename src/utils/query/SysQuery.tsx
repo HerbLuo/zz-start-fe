@@ -26,22 +26,24 @@ type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 interface SysQueryProps {
   tag: string;
   serverUserPlan: SysQueryUserPlanRes | undefined;
+  activePlanRef: React.MutableRefObject<SysQueryUserPlan | undefined>;
   setActivePlanForFetch: SetState<SysQueryUserPlan | undefined>;
 }
 
 export function SysQuery(props: SysQueryProps) {
-  const { tag, serverUserPlan, setActivePlanForFetch } = props;
+  const { tag, serverUserPlan, activePlanRef, setActivePlanForFetch } = props;
 
   const [plans, setPlans] = useState<SysQueryUserPlan[]>();
   const [elements, setElements] = useState<SysQueryElementEntity[]>();
   const [activePlanId, setActivePlanId] = useStorageState<number | null>(
-    `${tag}:${userId()}:active-plan`, 
+    `${tag}:${userId()}:active-plan`,
     null,
   );
   const serverPlanRef = useRef(serverUserPlan?.plans);
   const [editing, setEditing] = useState(false);
   const [more, setMore] = useStorageState(`${tag}:${userId()}:more`, false);
   const activePlan = plans?.find(plan => plan.plan.id === activePlanId);
+  activePlanRef.current = activePlan;
 
   useEffect(() => {
     if (!serverUserPlan) {
@@ -80,6 +82,7 @@ export function SysQuery(props: SysQueryProps) {
     }
   }, [activePlanId, setActivePlanId]);
 
+  // 目的是为了在初始化后，自动执行一遍fetch
   const fetched = useRef(false);
   useEffect(() => {
     if (activePlan && !fetched.current) {

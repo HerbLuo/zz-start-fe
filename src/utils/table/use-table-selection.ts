@@ -27,5 +27,5 @@ export function useTableSelection<KEY extends React.Key = number, RECORD = unkno
       return selectionRef.current;
     }
   };
-  return [rowSelection, selectedRef] as const;
+  return { rowSelection, selectedRef };
 }

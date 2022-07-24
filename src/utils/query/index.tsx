@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { sysQueryApi } from "../../api/sys-query-api";
 import { SysQueryDataReq } from "../../types/SysQueryDataReq";
 import { SysQueryDataRes } from "../../types/SysQueryDataRes";
@@ -36,7 +36,10 @@ export interface UseQueryResult {
 }
 
 export function useQuery(tag: string): UseQueryResult {
-  const [serverUserPlan, error] = useData(sysQueryApi.getPlan, tag, { alert: false });
+  const [serverUserPlan, error] = useData(
+    sysQueryApi.getPlan, tag, { alert: false }
+  );
+  const activePlanRef = useRef<SysQueryUserPlan>();
   const [planForFetch, setPlanForFetch] = useState<SysQueryUserPlan>();
 
   const fetchData: FetchData | undefined = useMemo(() => planForFetch ? async (
@@ -45,6 +48,15 @@ export function useQuery(tag: string): UseQueryResult {
     replaceReq?: ReplaceReq,
     uSeeUGet: boolean = false
   ): Promise<SysQueryDataRes> => {
+    logger.debug("fetching", {page, pageSize}, "mode:", {uSeeUGet});
+    const plan = uSeeUGet ? activePlanRef.current : planForFetch;
+    if (!plan) {
+      logger.warn("未知的查询计划");
+      return { hasNext: false, rows: [], total: Promise.reject("unknown"), };
+    }
+
+    logger.debug(plan);
+
     const req: SysQueryDataReq = {
       tag,
       page,
@@ -60,6 +72,7 @@ export function useQuery(tag: string): UseQueryResult {
       <SysQuery
         tag={tag}
         serverUserPlan={serverUserPlan}
+        activePlanRef={activePlanRef}
         setActivePlanForFetch={setPlanForFetch}
       />
     ),

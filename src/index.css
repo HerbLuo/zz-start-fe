@@ -44,3 +44,7 @@
 .zz-wrapper-content > .ant-table-wrapper {
   margin: 18px;
 }
+
+.zz-wrapper-operators > * {
+  margin-left: 8px;
+}

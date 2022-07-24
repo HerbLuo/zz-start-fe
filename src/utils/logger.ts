@@ -155,7 +155,7 @@ function createLogger(
         return "TippedError";
     }
     const DATE = formatDate(new Date());
-    const LEVEL = level.toUpperCase();
+    const LEVEL = level.toUpperCase().padEnd(5, " ");
     const module32LenMax = module
       ? module.length > 32
         ? "..." + module.substring(module.length - 29, module.length)

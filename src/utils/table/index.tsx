@@ -1,5 +1,5 @@
 import { TablePaginationConfig, TableProps } from "antd";
-import { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { i18n as i18nGlobal } from "../../i18n/core";
 import { SysQueryDataReq } from "../../types/SysQueryDataReq";
 import { SysQueryDataRes } from "../../types/SysQueryDataRes";
@@ -17,6 +17,7 @@ export type FetchData = (
   page: number, 
   pagesize: number, 
   replaceReq?: ReplaceReq,
+  uSeeUGet?: boolean,
 ) => Promise<SysQueryDataRes>;
 
 interface UseTableOptions {
@@ -56,8 +57,6 @@ export function useTable<T extends {}>(
   const [rows, setRows] = useState<T[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState<number>();
-  const [refresh, setRefresh] = useState(0);
-  const refreshRef = useRef(refresh);
   const [pagesize, setPagesize] = useStorageState(
     `${tag}:${userId()}:table`,
     options.pagesize || 10,
@@ -72,22 +71,21 @@ export function useTable<T extends {}>(
     }
   }, [optionPagesize, setPagesize]);
 
-  // 负责获取数据以及自动刷新界面
-  useEffect(() => {
+  const loadData = useCallback((refreshMode: boolean) => {
     if (!fetchData) {
       return;
     }
     let cancel = false;
     setLoading(true);
-    logger.debug(tag + " loading.");
-    if (refreshRef.current !== refresh) {
+    if (refreshMode) {
       logger.debug(tag + " refreshing.");
-      refreshRef.current = refresh;
+    } else {
+      logger.debug(tag + " loading.");
     }
 
     const fetchResult = optionPagination 
-      ? fetchData(page, pagesize)
-      : fetchData(1, 100000);
+      ? fetchData(page, pagesize, undefined, refreshMode)
+      : fetchData(1, 100000, undefined, refreshMode);
 
     fetchResult.then(table => {
       if (!cancel) {
@@ -102,17 +100,31 @@ export function useTable<T extends {}>(
       }
       setLoading(false);
     });
-    return () => { cancel = true };
-  }, [tag, page, pagesize, fetchData, refresh, optionPagination]);
+    return () => { 
+      cancel = true;
+    };
+  }, [tag, page, pagesize, fetchData, optionPagination]);
+
+  // 负责获取数据以及自动刷新界面
+  useEffect(() => {
+    return loadData(false);
+  }, [loadData]);
 
   // 刷新表格
-  const doRefresh: Refresh<T> = useCallback(async (
+  const refresh: Refresh<T> = useCallback(async (
     data?: PromiseOr<Partial<T>>,
     finder = (a: T, b: Partial<T>) => (a as any).id === (b as any).id,
   ) => {
+    if ((data as {nativeEvent?: unknown})?.nativeEvent instanceof Event) {
+      data = undefined;
+    }
+    if ((data as {target?: unknown})?.target instanceof Node) {
+      data = undefined;
+    }
+
     if (!data) {
-      logger.log(tag + " is refreshing, full mode.");
-      setRefresh(refresh + 1);
+      logger.info(tag + " is refreshing, full mode.");
+      loadData(true);
       return;
     }
     const newData = await data;
@@ -126,8 +138,7 @@ export function useTable<T extends {}>(
       };
     });
     setRows(newRows);
-  }, [tag, refresh, rows]);
-
+  }, [tag, rows, loadData]);
 
   const { beforePageChange } = options;
   const onPageChange = useCallback((page: number) => {
@@ -163,7 +174,7 @@ export function useTable<T extends {}>(
   return {
     rows,
     loading,
-    refresh: doRefresh,
+    refresh,
     pagination,
   };
 }
