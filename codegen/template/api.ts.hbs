@@ -1,5 +1,5 @@
 import { basePath } from "./config";
-import { {{#each methods}}{{this}}{{#unless @last}}, {{/unless}}{{/each}} } from "./http";
+import { {{#each methods}}{{this}}, {{/each}}RequestOptions } from "./http";
 {{#each deps ~}}
   import { {{this}} } from "../types/{{this}}";
 {{/each}}
@@ -11,8 +11,16 @@ async function {{operationName}}(
     {{~name}}: {{type}}{{#unless @last}}, {{/unless}}
   {{~/each}}
   {{~#if jsonBody}}{{#if parameters}}, {{/if}}{{jsonBody.name}}: {{jsonBody.type}}{{/if~}}
+  {{~#if parameters}}, {{^}}{{#if jsonBody}}, {{/if}}{{/if~}}
+  {{~null}}options?: RequestOptions{{null~}}
 ): Promise<{{response.type}}> {
-  return await {{method}}(`${basePath}{{path}}`{{~#if jsonBody}}, {{jsonBody.name}}{{/if}}{{~#if async}}, { Accept: "application/x-ndjson" }{{/if}});
+  return await {{method}}(
+    {{~null}}`${basePath}{{path}}`
+    {{~#unlessEq method "get"}}, {{#if jsonBody}}{{jsonBody.name}}{{^}}undefined{{/if}}{{/unlessEq}}
+    {{~null}}, options
+    {{~#if async}}, { Accept: "application/x-ndjson" }{{/if}}
+    {{~null~}}
+  );
 }
 
 {{/each}}

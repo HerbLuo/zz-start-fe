@@ -1,7 +1,7 @@
 import { TableRowSelection } from "antd/lib/table/interface";
 import React, { useRef, useState } from "react";
 
-export function useSelection<KEY extends React.Key = number, RECORD = unknown>(
+export function useTableSelection<KEY extends React.Key = number, RECORD = unknown>(
   disabled?: (record: RECORD) => boolean
 ) {
   const selectionRef = useRef<KEY[]>();

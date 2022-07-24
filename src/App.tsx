@@ -6,13 +6,17 @@ import Loading from "./pages/loading";
 import zhCN from "antd/es/locale/zh_CN";
 import { ConfigProvider } from "antd";
 import { currentLang } from "./i18n/core.lang";
+import { logger } from "./utils/logger";
 
 function LazyPage({ page }: { page?: string }) {
   const params = useParams();
   /* webpackChunkName: "[request]" */
   const Page = lazy(() => import(
     `./pages/${page || params.page}/index.tsx`
-  ));
+  ).catch(e => {
+    logger.warn(e);
+    return import("./pages/tagged/index");
+  }));
 
   return (
     <Suspense fallback={<Loading/>}>

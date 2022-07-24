@@ -2,11 +2,15 @@ import { showWarn } from "../utils/dialog";
 import { I18nString, i18n } from "../i18n/core";
 import { autoLogin, goToLoginPage } from "./auto-login";
 import { TokenExpired, HTTP_STATUS_UNAUTHORIZED, TokenWrong } from "./constants";
-import { delay } from "../utils/delay";
 import { areDebug } from "../utils/env";
 import { withCredentials } from "./config";
 import { defer, IDefer } from "../utils/defer";
 import { javaBeanReviver } from "../utils/json-parse-reviver";
+import { delay } from "../utils/delay";
+import { _logger } from "../utils/logger";
+import { normalRandomEx } from "../utils/random";
+
+const logger = _logger(import.meta.url);
 
 export const PostHeaders = {
   "Content-Type": "application/json"
@@ -18,6 +22,7 @@ export const defaultInit: RequestInit = {
 
 export interface RequestOptions {
   autoLoginByRefreshToken?: boolean;
+  alert?: boolean;
 }
 
 const textDecoder = new TextDecoder("utf-8");
@@ -27,11 +32,13 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   await autoLoginP;
 
   if (areDebug) {
-    // await delay(300);
+    const latency = normalRandomEx(300, 12000);
+    logger.debug("模拟的网络延时为" + latency + "ms");
+    await delay(latency);
   }
 
   const response = await fetch(url, init).catch(async e => {
-    throw await showWarn(i18n("服务器出了些问题, 尝试联系支持人员。"), e)
+    throw await showWarn(i18n("请求失败, 可能是网络原因。"), e)
   });
   let receivedResults: string[] = [];
   let reader: ReadableStreamDefaultReader | null = null;
@@ -69,6 +76,8 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
     }
   }
 
+  // const logOrShowWarn = options.alert === false ? logWarn : showWarn;
+
   // 已知的异常返回结果
   if ((parsedJsonResponseBody as { ok: unknown }).ok === -1) {
     const data = (parsedJsonResponseBody as { data: void | { serial: string, code: number, message?: string, alert?: I18nString } }).data;
@@ -76,7 +85,12 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
       throw await showWarn(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了异常结果(ok=-1)，但异常信息无法解析。", data);
     }
     if (data.alert) {
-      throw await showWarn(data.alert, "[ALERT]服务器返回了一个alert", data);
+      if (options.alert) {
+        throw await showWarn(data.alert, "[ALERT]服务器返回了一个alert", data);
+      } else {
+        logger.log("[ALERT]服务器返回了一个alert", data);
+        throw data;
+      }
     }
     if (data.code === TokenExpired || data.code === TokenWrong) {
       sessionStorage.removeItem("logged_in");
@@ -89,7 +103,12 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
       goToLoginPage();
       throw new Error("需要登陆但未登陆");
     }
-    throw await showWarn(i18n("服务器出了些问题, 尝试联系支持人员。"), "服务器返回了异常", data);
+    if (options.alert) {
+      throw await showWarn(i18n("服务器出了些问题, 尝试联系支持人员。"), "服务器返回了异常", data);
+    } else {
+      logger.log("服务器返回了异常", data);
+      throw data;
+    }
   }
 
   // 返回了未知的JSON数据
@@ -170,38 +189,38 @@ function mapPromise(data: {}, reader: ReadableStreamDefaultReader, receivedResul
   return data;
 }
 
-export async function get<T>(url: string, headers?: HeadersInit): Promise<T> {
-  return request<T>(url, headers ? { headers } : {});
+export async function get<T>(url: string, options?: RequestOptions, headers?: HeadersInit): Promise<T> {
+  return request<T>(url, headers ? { headers } : {}, options);
 }
 
-export async function post<T>(url: string, body = {}, headers?: HeadersInit): Promise<T> {
+export async function post<T>(url: string, body = {}, options?: RequestOptions, headers?: HeadersInit): Promise<T> {
   return request<T>(url, {
     body: JSON.stringify(body),
     headers: headers ? {...PostHeaders, ...headers} : PostHeaders,
     method: "POST",
-  });
+  }, options);
 }
 
-export async function patch<T>(url: string, body = {}, headers?: HeadersInit): Promise<T> {
+export async function patch<T>(url: string, body = {}, options?: RequestOptions, headers?: HeadersInit): Promise<T> {
   return request<T>(url, {
     body: JSON.stringify(body),
     headers: headers ? {...PostHeaders, ...headers} : PostHeaders,
     method: "PATCH",
-  });
+  }, options);
 }
 
-export async function put<T>(url: string, body = {}, headers?: HeadersInit): Promise<T> {
+export async function put<T>(url: string, body = {}, options?: RequestOptions, headers?: HeadersInit): Promise<T> {
   return request<T>(url, {
     body: JSON.stringify(body),
     headers: headers ? {...PostHeaders, ...headers} : PostHeaders,
     method: "PUT",
-  });
+  }, options);
 }
 
-export async function del<T>(url: string, body = {}, headers?: HeadersInit): Promise<T> {
+export async function del<T>(url: string, body = {}, options?: RequestOptions, headers?: HeadersInit): Promise<T> {
   return request<T>(url, {
     body: JSON.stringify(body),
     headers: headers ? {...PostHeaders, ...headers} : PostHeaders,
     method: "DELETE",
-  });
+  }, options);
 }

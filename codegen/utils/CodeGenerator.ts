@@ -1,10 +1,12 @@
 import * as fs from "fs";
 import Handlebars from "handlebars";
+import * as HandlebarsHelpers from "handlebars-helpers";
 import * as path from "path";
 import { trim_margin } from "./trim_margin";
 import { createHash } from "crypto";
 
 const HashReg = /(\/\/ *禁止修改 #HASH)<([^<>]+)>(HASH#)/;
+HandlebarsHelpers();
 
 export interface GeneratorConfig {
   withHash: boolean;

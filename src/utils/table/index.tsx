@@ -49,7 +49,7 @@ export interface UseTableResult<T> {
 
 export function useTable<T extends {}>(
   tag: string, 
-  fetchData: FetchData, 
+  fetchData: FetchData | undefined,
   options: UseTableOptions = {},
 ) {
   const [loading, setLoading] = useState(true);
@@ -74,7 +74,12 @@ export function useTable<T extends {}>(
 
   // 负责获取数据以及自动刷新界面
   useEffect(() => {
+    if (!fetchData) {
+      return;
+    }
+    let cancel = false;
     setLoading(true);
+    logger.debug(tag + " loading.");
     if (refreshRef.current !== refresh) {
       logger.debug(tag + " refreshing.");
       refreshRef.current = refresh;
@@ -85,12 +90,19 @@ export function useTable<T extends {}>(
       : fetchData(1, 100000);
 
     fetchResult.then(table => {
-      setRows(table.rows as T[]);
+      if (!cancel) {
+        logger.debug(tag + " rows fetched.");
+        setRows(table.rows as T[]);
+      }
       return table.total;
     }).then(total => {
-      setTotal(total);
+      if (!cancel) {
+        logger.debug(tag + " total count fetched.");
+        setTotal(total);
+      }
       setLoading(false);
     });
+    return () => { cancel = true };
   }, [tag, page, pagesize, fetchData, refresh, optionPagination]);
 
   // 刷新表格

@@ -14,6 +14,7 @@ export function nextGoodStr(len: number = 3, upperCase: Boolean = true): string 
 
 /**
  * 一种正态分布
+ * 0 ~ 1
  */
 export function normalRandom(): number {
   let u = 0;
@@ -31,6 +32,31 @@ export function normalRandom(): number {
   }
   return num;
 }
+
+/**
+ * 适用于模拟网络不稳定等情况
+ * @param base 300 一般延时在300ms左右
+ * @param ex 12000 | [-12000, 12000] 极少数情况下延时会在 12000ms
+ * @param exp 指数，指数越大，出现12000的概率越小, 该指数很灵敏，可以为小数，尽量控制在1-5之间
+ */
+export function normalRandomEx(base: number, ex: number | [number, number], exp: number = 3): number {
+  const baseNum = normalRandom() * base * 2;
+  const addNormalRandom = (normalRandom() * 2 - 1) ** exp;
+  const addNum = typeof ex === "number" 
+    ? addNormalRandom > 0 ? addNormalRandom * ex : 0
+    : addNormalRandom > 0 
+      ? addNormalRandom * (ex.find(e => e > 0) || 0)
+      : 0 - addNormalRandom * (ex.find(e => e <= 0) || 0);
+  return baseNum + addNum;
+}
+
+// (function test() {
+//   let times = 0;
+
+//   while (times++ < 100000) {
+
+//   }
+// })();
 
 export function nextId(len: number = 16, ...withSymbols: string[]): string {
   const loopTimes = Math.ceil(len / 4);
