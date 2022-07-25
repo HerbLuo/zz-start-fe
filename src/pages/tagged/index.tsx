@@ -2,7 +2,7 @@ import SyncOutlined from "@ant-design/icons/SyncOutlined";
 import ExportOutlined from "@ant-design/icons/DeliveredProcedureOutlined";
 import { useQuery } from "../../utils/query";
 import { useTable } from "../../utils/table";
-import { useColumns } from "../../utils/table/use-columns";
+import { Mergers, useColumns } from "../../utils/table/use-columns";
 import { Button, Table } from "antd";
 import { useTableSelection } from "../../utils/table/use-table-selection";
 import { I18n } from "../../i18n/use-i18n";
@@ -18,14 +18,13 @@ export default function TaggedPage() {
   const params = useParams();
   const tag = params.page || "unknown";
   const pageTag = `page:${tag}`;
-  const { el, fetchData, error } = useQuery(tag);
-  const { el: colCfgEl, mergeColumn } = useColumns<T>(pageTag);
+  const { el, fetchData, error } = useQuery(tag, pageTag);
   const { rowSelection } = useTableSelection<number, T>();
   const { rows, loading, pagination, refresh } = useTable(pageTag, fetchData); 
-
-  const columns = useMemo(() => mergeColumn([
+  const mergers = useMemo<Mergers<T>>(() => [
     { title: "操作" },
-  ]), [mergeColumn]);
+  ], []);
+  const { el: colCfgEl, columns } = useColumns<T>(pageTag, mergers);
 
   const exportData = useCallback(() => {
   }, []);

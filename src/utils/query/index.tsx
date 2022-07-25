@@ -35,9 +35,9 @@ export interface UseQueryResult {
   error: undefined | false | unknown;
 }
 
-export function useQuery(tag: string): UseQueryResult {
+export function useQuery(tag: string, pageTag: string): UseQueryResult {
   const [serverUserPlan, error] = useData(
-    sysQueryApi.getPlan, tag, { alert: false }
+    sysQueryApi.getPlan, tag, pageTag, { alert: false }
   );
   const activePlanRef = useRef<SysQueryUserPlan>();
   const [planForFetch, setPlanForFetch] = useState<SysQueryUserPlan>();
