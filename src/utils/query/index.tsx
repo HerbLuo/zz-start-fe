@@ -1,22 +1,22 @@
 import { useMemo, useRef, useState } from "react";
 import { sysSelectApi } from "../../api/sys-select-api";
-import { SysSelectDataReq } from "../../types/SysSelectDataReq";
-import { SysSelectDataRes } from "../../types/SysSelectDataRes";
-import { SysSelectUserPlan } from "../../types/SysSelectUserPlan";
-import { SysSelectUserPlanRes } from "../../types/SysSelectUserPlanRes";
+import { SysSpDataReq } from "../../types/SysSpDataReq";
+import { SysSpDataRes } from "../../types/SysSpDataRes";
+import { SysSpUsrPlan } from "../../types/SysSpUsrPlan";
+import { SysSpUsrPlanRes } from "../../types/SysSpUsrPlanRes";
 import { _logger } from "../logger";
 import { SysQuery } from "./SysQuery";
 
 const logger = _logger(import.meta.url);
 
-type ReplaceReq = (sysQueryDataReq: SysSelectDataReq) => SysSelectDataReq;
+type ReplaceReq = (sysQueryDataReq: SysSpDataReq) => SysSpDataReq;
 
 export type FetchData = (
   page: number, 
   pagesize: number, 
   replaceReq?: ReplaceReq,
   uSeeUGet?: boolean,
-) => Promise<SysSelectDataRes>;
+) => Promise<SysSpDataRes>;
 
 export interface UseQueryResult {
   el: JSX.Element; 
@@ -28,18 +28,18 @@ export interface UseQueryResult {
   fetchData?: FetchData;
 }
 
-export function useQuery(serverUserPlan?: SysSelectUserPlanRes): UseQueryResult {
+export function useQuery(serverUserPlan?: SysSpUsrPlanRes): UseQueryResult {
   const pageTag = serverUserPlan?.pageTag;
   
-  const activePlanRef = useRef<SysSelectUserPlan>();
-  const [planForFetch, setPlanForFetch] = useState<SysSelectUserPlan>();
+  const activePlanRef = useRef<SysSpUsrPlan>();
+  const [planForFetch, setPlanForFetch] = useState<SysSpUsrPlan>();
 
   const fetchData: FetchData | undefined = useMemo(() => planForFetch ? async (
     page: number, 
     pageSize: number, 
     replaceReq?: ReplaceReq,
     uSeeUGet: boolean = false
-  ): Promise<SysSelectDataRes> => {
+  ): Promise<SysSpDataRes> => {
     logger.debug("fetching", {page, pageSize}, "mode:", {uSeeUGet});
     const plan = uSeeUGet ? activePlanRef.current : planForFetch;
     if (!plan || !pageTag) {
@@ -49,7 +49,7 @@ export function useQuery(serverUserPlan?: SysSelectUserPlanRes): UseQueryResult 
 
     logger.debug(plan);
 
-    const req: SysSelectDataReq = {
+    const req: SysSpDataReq = {
       pageTag,
       page,
       pageSize,

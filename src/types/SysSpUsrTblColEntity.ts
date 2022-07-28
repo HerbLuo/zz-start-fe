@@ -1,9 +1,9 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<847783e0dac1c4c0be00cf4d3edc2c16537f7c9a4413fe6fee2c100bf3d09d6e>HASH#
+// 禁止修改 #HASH<6cce4c184ca9e976d0fa98e8064dea4bb1515220e910d89864c7d6a52e158eb6>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
-export interface SysSelectUserTableColumnEntity {
+export interface SysSpUsrTblColEntity {
   /** 创建者 */
   createBy: string;
   /** 创建时间 */
@@ -35,7 +35,7 @@ export interface SysSelectUserTableColumnEntity {
   /** 状态[init, wait, success, invalid, cancel, invalid_wait, cancel_wait, reject] */
   status: string;
   /** 对应的查询方案列ID */
-  sysSelectElementId: number;
+  sysSpEleId: number;
   /** 用户ID */
   sysUserId: number;
   /** 列名 */

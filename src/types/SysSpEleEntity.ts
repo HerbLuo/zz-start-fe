@@ -1,9 +1,9 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<42e6e46d046da8590e7ad5e2524ac3b1d9cafc65495a26825341dea07d36d5e4>HASH#
+// 禁止修改 #HASH<9e741838d387e5f70e2ced178dd31822b0a7f88d4f35adc8f7e68ec90033d9cf>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
-export interface SysSelectElementEntity {
+export interface SysSpEleEntity {
   /** 属性名(作为字段名) */
   alias: string;
   /** 属性名(显示用) */
@@ -39,7 +39,7 @@ export interface SysSelectElementEntity {
   /** 状态[init, wait, success, invalid, cancel, invalid_wait, cancel_wait, reject] */
   status: string;
   /** 主键ID */
-  sysSelectId: number;
+  sysSpId: number;
   /** 方案名(冗余字段) */
   tagCn: string;
   /** 类型(text, select, number, time, date, date-time, month, year) */

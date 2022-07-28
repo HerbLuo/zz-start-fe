@@ -1,9 +1,9 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<779788c4876c58b99c9ed2327ef4570a590a816ade3eae830b14c0b56970720e>HASH#
+// 禁止修改 #HASH<a2015026e45a26e72d787056dc2ff91ceb2c6f7c61387a4b2affadabe7a6298d>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
-export interface SysSelectEntity {
+export interface SysSpEntity {
   /** 创建者 */
   createBy: string;
   /** 创建时间 */

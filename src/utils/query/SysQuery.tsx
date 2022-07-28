@@ -15,27 +15,27 @@ import { SysQueryQuickFilters } from "./SysQueryQuickFilters";
 import { userId } from "../site";
 import { cloneBean } from "../clone";
 import { I18n } from "../../i18n/use-i18n";
-import { SysSelectUserPlanRes } from "../../types/SysSelectUserPlanRes";
-import { SysSelectUserPlan } from "../../types/SysSelectUserPlan";
-import { SysSelectElementEntity } from "../../types/SysSelectElementEntity";
-import { SysSelectUserPlanItemEntity } from "../../types/SysSelectUserPlanItemEntity";
+import { SysSpUsrPlanRes } from "../../types/SysSpUsrPlanRes";
+import { SysSpUsrPlan } from "../../types/SysSpUsrPlan";
+import { SysSpEleEntity } from "../../types/SysSpEleEntity";
+import { SysSpUsrPlanItemEntity } from "../../types/SysSpUsrPlanItemEntity";
 
 const i18n = i18nGlobal.module("query");
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 interface SysQueryProps {
   pageTag: string | undefined;
-  serverUserPlan: SysSelectUserPlanRes | undefined;
-  activePlanRef: React.MutableRefObject<SysSelectUserPlan | undefined>;
-  setActivePlanForFetch: SetState<SysSelectUserPlan | undefined>;
+  serverUserPlan: SysSpUsrPlanRes | undefined;
+  activePlanRef: React.MutableRefObject<SysSpUsrPlan | undefined>;
+  setActivePlanForFetch: SetState<SysSpUsrPlan | undefined>;
 }
 
 export function SysQuery(props: SysQueryProps) {
   const { pageTag, serverUserPlan, activePlanRef, setActivePlanForFetch } = props;
   const tag4db = pageTag || "loading";
 
-  const [plans, setPlans] = useState<SysSelectUserPlan[]>();
-  const [elements, setElements] = useState<SysSelectElementEntity[]>();
+  const [plans, setPlans] = useState<SysSpUsrPlan[]>();
+  const [elements, setElements] = useState<SysSpEleEntity[]>();
   const [activePlanId, setActivePlanId] = useStorageState<number | null>(
     `${tag4db}:${userId()}:active-plan`,
     null,
@@ -57,7 +57,7 @@ export function SysQuery(props: SysQueryProps) {
   }, [serverUserPlan]);
 
   const setActivePlan = useCallback((
-    newPlan: SysSelectUserPlan | ((p: SysSelectUserPlan) => SysSelectUserPlan)
+    newPlan: SysSpUsrPlan | ((p: SysSpUsrPlan) => SysSpUsrPlan)
   ) => {
     setPlans(plans => plans?.map(plan => {
       if (plan.plan.id === activePlanId) {
@@ -135,7 +135,7 @@ export function SysQuery(props: SysQueryProps) {
         ...plan, 
         items: [
           ...plan.items, 
-          { id: nextIdNum() } as SysSelectUserPlanItemEntity
+          { id: nextIdNum() } as SysSpUsrPlanItemEntity
         ]
       };
     })

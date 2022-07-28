@@ -1,17 +1,17 @@
 import CloseOutlined from "@ant-design/icons/CloseOutlined";
 import { Button, Input, Select } from "antd";
 import { useCallback, useMemo } from "react";
-import { SysQueryElementEntity } from "../../types/SysQueryElementEntity";
-import { SysQueryUserPlan } from "../../types/SysQueryUserPlan";
-import { SysQueryUserPlanItemEntity } from "../../types/SysQueryUserPlanItemEntity";
+import { SysSpEleEntity } from "../../types/SysSpEleEntity";
+import { SysSpUsrPlan } from "../../types/SysSpUsrPlan";
+import { SysSpUsrPlanItemEntity } from "../../types/SysSpUsrPlanItemEntity";
 import { createAsync } from "../async/create-async";
 import { useStorageState } from "../hooks/use-storage-state";
 import { userId } from "../site";
 import { styles } from "./SysQuery.style";
 
 interface QuickFiltersProps {
-  activePlan: SysQueryUserPlan;
-  elements: SysQueryElementEntity[];
+  activePlan: SysSpUsrPlan;
+  elements: SysSpEleEntity[];
 }
 
 const AsyncSelect = createAsync(Select, ["options"]);
@@ -32,18 +32,18 @@ export function SysQueryQuickFilters(props: QuickFiltersProps) {
 }
 
 interface QuickFilterProps {
-  item: SysQueryUserPlanItemEntity;
-  elements: SysQueryElementEntity[];
+  item: SysSpUsrPlanItemEntity;
+  elements: SysSpEleEntity[];
 }
 function SysQueryQuickFilter(props: QuickFilterProps) {
   const { elements, item } = props;
 
   const [expand, setExpand] = useStorageState(
-    `${item.sysQueryTagCnRedundant}:${userId()}:expand`, 
+    `${item.tagCn}:${userId()}:expand`, 
     false,
   );
 
-  const element = elements?.find(ele => ele.id === item.sysQueryElementId);
+  const element = elements?.find(ele => ele.id === item.sysSpEleId);
   let input: React.ReactNode = "?";
   if (!element) {
     input = null;
@@ -56,7 +56,7 @@ function SysQueryQuickFilter(props: QuickFilterProps) {
   }, [elements]);
 
   const conditionOptions = useMemo(() => {
-    const element = elements.find(ele => item.sysQueryElementId === ele.id);
+    const element = elements.find(ele => item.sysSpEleId === ele.id);
     if (!element) {
       return [];
     }
@@ -88,7 +88,7 @@ function SysQueryQuickFilter(props: QuickFilterProps) {
         // autoWidth={true}
         options={aliasOptions}
         style={styles.marginRight8} 
-        value={item.sysQueryElementId}
+        value={item.sysSpEleId}
         onChange={onSelectElementAliasChange}
       />
       <AsyncSelect

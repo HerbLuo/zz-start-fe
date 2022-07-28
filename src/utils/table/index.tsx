@@ -2,8 +2,8 @@ import { TablePaginationConfig, TableProps } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { i18n as i18nGlobal } from "../../i18n/core";
 import { I18n } from "../../i18n/use-i18n";
-import { SysSelectDataReq } from "../../types/SysSelectDataReq";
-import { SysSelectDataRes } from "../../types/SysSelectDataRes";
+import { SysSpDataReq } from "../../types/SysSpDataReq";
+import { SysSpDataRes } from "../../types/SysSpDataRes";
 import { useStorageState } from "../hooks/use-storage-state";
 import { logger } from "../logger";
 import { userId } from "../site";
@@ -11,14 +11,14 @@ import { PromiseOr } from "../ts";
 
 const i18n = i18nGlobal.module("table");
 
-type ReplaceReq = (sysQueryDataReq: SysSelectDataReq) => SysSelectDataReq;
+type ReplaceReq = (sysQueryDataReq: SysSpDataReq) => SysSpDataReq;
 
 export type FetchData = (
   page: number, 
   pagesize: number, 
   replaceReq?: ReplaceReq,
   uSeeUGet?: boolean,
-) => Promise<SysSelectDataRes>;
+) => Promise<SysSpDataRes>;
 
 interface UseTableOptions {
   pagesize?: number;
