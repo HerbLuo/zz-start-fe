@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ColumnType } from "antd/lib/table";
 import { _logger } from "../logger";
 import { SortableCheckboxGroup, SortableCheckboxOption } from "../antd-pro/sortable-checkbox-group";
+import { SysSelectUserPlanRes } from "../../types/SysSelectUserPlanRes";
 
 const logger = _logger(import.meta.url);
 
@@ -19,7 +20,7 @@ export interface UseColumnsResult<T> {
 }
 
 export function useColumns<T extends {}>(
-  pageTag: string,
+  serverPlan: SysSelectUserPlanRes | undefined,
   /** 会根据title 或 dataIndex与服务器中的列配置合并。 */
   mergers?: Mergers<T>,
   /** 指定字段的默认排序 */

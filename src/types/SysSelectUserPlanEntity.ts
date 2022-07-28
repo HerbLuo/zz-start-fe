@@ -1,9 +1,9 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<6dc2aa4174044e5d259847f84f7ddba354741cfee181d80cb7d6138cee67f9d6>HASH#
+// 禁止修改 #HASH<4ec876653ef8dc164305c25ea76cfe6e903334c9f2d697c16fbe182967e18e6c>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
-export interface SysQueryUserPlanEntity {
+export interface SysSelectUserPlanEntity {
   /** 创建者 */
   createBy: string;
   /** 创建时间 */
@@ -27,11 +27,11 @@ export interface SysQueryUserPlanEntity {
   /** 状态[init, wait, success, invalid, cancel, invalid_wait, cancel_wait, reject] */
   status: string;
   /** 查询方案 */
-  sysQueryId: number;
-  /** 方案配置名(冗余字段) */
-  sysQueryTagCnRedundant: string;
+  sysSelectId: number;
   /** 用户ID */
   sysUserId: number;
+  /** 方案配置名(冗余字段) */
+  tagCn: string;
   /** 更新者 */
   updateBy: string;
   /** 更新时间 */

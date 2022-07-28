@@ -1,22 +1,22 @@
 import { useMemo, useRef, useState } from "react";
-import { sysQueryApi } from "../../api/sys-query-api";
-import { SysQueryDataReq } from "../../types/SysQueryDataReq";
-import { SysQueryDataRes } from "../../types/SysQueryDataRes";
-import { SysQueryUserPlan } from "../../types/SysQueryUserPlan";
-import { useData } from "../hooks/use-data";
+import { sysSelectApi } from "../../api/sys-select-api";
+import { SysSelectDataReq } from "../../types/SysSelectDataReq";
+import { SysSelectDataRes } from "../../types/SysSelectDataRes";
+import { SysSelectUserPlan } from "../../types/SysSelectUserPlan";
+import { SysSelectUserPlanRes } from "../../types/SysSelectUserPlanRes";
 import { _logger } from "../logger";
 import { SysQuery } from "./SysQuery";
 
 const logger = _logger(import.meta.url);
 
-type ReplaceReq = (sysQueryDataReq: SysQueryDataReq) => SysQueryDataReq;
+type ReplaceReq = (sysQueryDataReq: SysSelectDataReq) => SysSelectDataReq;
 
 export type FetchData = (
   page: number, 
   pagesize: number, 
   replaceReq?: ReplaceReq,
   uSeeUGet?: boolean,
-) => Promise<SysQueryDataRes>;
+) => Promise<SysSelectDataRes>;
 
 export interface UseQueryResult {
   el: JSX.Element; 
@@ -26,57 +26,49 @@ export interface UseQueryResult {
    * 需使用useEffect将其返回结果捕获并展示到界面中
    */
   fetchData?: FetchData;
-  /**
-   * 初始化过程中的error
-   * undefined 初始化未完毕
-   * false 没有已知错误
-   * unknown 在一般情况下为 {ok: -1, code: number, message: string}
-   */
-  error: undefined | false | unknown;
 }
 
-export function useQuery(tag: string, pageTag: string): UseQueryResult {
-  const [serverUserPlan, error] = useData(
-    sysQueryApi.getPlan, tag, pageTag, { alert: false }
-  );
-  const activePlanRef = useRef<SysQueryUserPlan>();
-  const [planForFetch, setPlanForFetch] = useState<SysQueryUserPlan>();
+export function useQuery(serverUserPlan?: SysSelectUserPlanRes): UseQueryResult {
+  const pageTag = serverUserPlan?.pageTag;
+  
+  const activePlanRef = useRef<SysSelectUserPlan>();
+  const [planForFetch, setPlanForFetch] = useState<SysSelectUserPlan>();
 
   const fetchData: FetchData | undefined = useMemo(() => planForFetch ? async (
     page: number, 
     pageSize: number, 
     replaceReq?: ReplaceReq,
     uSeeUGet: boolean = false
-  ): Promise<SysQueryDataRes> => {
+  ): Promise<SysSelectDataRes> => {
     logger.debug("fetching", {page, pageSize}, "mode:", {uSeeUGet});
     const plan = uSeeUGet ? activePlanRef.current : planForFetch;
-    if (!plan) {
+    if (!plan || !pageTag) {
       logger.warn("未知的查询计划");
       return { hasNext: false, rows: [], total: Promise.reject("unknown"), };
     }
 
     logger.debug(plan);
 
-    const req: SysQueryDataReq = {
-      tag,
+    const req: SysSelectDataReq = {
+      pageTag,
       page,
       pageSize,
+      columns: [],
       conditions: [],
       orderBys: [],
     };
-    return sysQueryApi.getData(replaceReq ? replaceReq(req) : req);
-  } : undefined, [tag, planForFetch]);
+    return sysSelectApi.getData(replaceReq ? replaceReq(req) : req);
+  } : undefined, [pageTag, planForFetch]);
 
   return {
     el: (
       <SysQuery
-        tag={tag}
+        pageTag={pageTag}
         serverUserPlan={serverUserPlan}
         activePlanRef={activePlanRef}
         setActivePlanForFetch={setPlanForFetch}
       />
     ),
     fetchData,
-    error,
   };
 };

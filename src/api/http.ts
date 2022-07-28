@@ -177,12 +177,9 @@ function mapPromise(data: {}, reader: ReadableStreamDefaultReader, receivedResul
       const res = await reader.read();
       done = res.done;
       const str = textDecoder.decode(res.value);
-      if (str.includes("\n")) {
-        const [first, ...others] = str.split("\n");
-        handleResult(first);
-        for (const other of others) {
-          handleResult(other);
-        }
+      const rows = str.split("\n");
+      for (const row of rows) {
+        handleResult(row);
       }
     }
   })();

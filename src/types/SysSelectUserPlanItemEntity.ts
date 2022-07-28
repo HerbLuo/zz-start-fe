@@ -1,9 +1,11 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<37b49bda103263293abf501d47ab95800fe7d3a9fcdc76659eb5a857694d91b1>HASH#
+// 禁止修改 #HASH<fa3d2761b8996f8224760aba08502398eb9ca39a5ee872ba15f454e82f45ac30>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
-export interface SysQueryUserPlanItemEntity {
+export interface SysSelectUserPlanItemEntity {
+  /** 查询方案字段名(冗余) */
+  aliasCn: string;
   /** 创建者 */
   createBy: string;
   /** 创建时间 */
@@ -22,18 +24,16 @@ export interface SysQueryUserPlanItemEntity {
   sort: number;
   /** 状态[init, wait, success, invalid, cancel, invalid_wait, cancel_wait, reject] */
   status: string;
-  /** 查询方案字段名(冗余) */
-  sysQueryElementAliasCnRedundant: string;
   /** 对应的查询方案列ID */
-  sysQueryElementId: number;
+  sysSelectElementId: number;
   /**  */
-  sysQueryId: number;
-  /** 查询方案配置名(冗余) */
-  sysQueryTagCnRedundant: string;
+  sysSelectId: number;
   /** 表头ID */
-  sysQueryUserPlanId: number;
+  sysSelectUserPlanId: number;
   /** 用户ID(冗余) */
-  sysUserIdRedundant: number;
+  sysUserId: number;
+  /** 查询方案配置名(冗余) */
+  tagCn: string;
   /** 更新者 */
   updateBy: string;
   /** 更新时间 */

@@ -55,7 +55,7 @@ export function I18n(props: { text: PromiseOr<I18nString> }) {
         }
       });
     }
-  }, [text, propText]); 
+  }, [isPromise, text, propText]); 
 
   return <>{text}</>;
 }

@@ -1,9 +1,9 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<036b89b2f8be155c569a718c89863fa9b8662ac84a4524dd375199267ecceea9>HASH#
+// 禁止修改 #HASH<42e6e46d046da8590e7ad5e2524ac3b1d9cafc65495a26825341dea07d36d5e4>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
-export interface SysQueryElementEntity {
+export interface SysSelectElementEntity {
   /** 属性名(作为字段名) */
   alias: string;
   /** 属性名(显示用) */
@@ -14,7 +14,9 @@ export interface SysQueryElementEntity {
   createTime: Date;
   /** 删除标志 */
   deleted: boolean;
-  /** 隐藏 */
+  /** 固定列，不允许排序 right, left */
+  fixed: string;
+  /** 是否在列表中隐藏 */
   hidden: boolean;
   /** ID */
   id: number;
@@ -24,27 +26,29 @@ export interface SysQueryElementEntity {
   limitType: string;
   /** 限定值 */
   limitValues: string;
-  /** 排序字段 */
-  orderByColumn: boolean;
-  /** 倒序排序字段 */
-  orderByDesc: boolean;
+  /** asc, desc */
+  orderByColumn: string;
+  /** 存在多个order_by字段时的先后顺序 */
+  orderByIndex: number;
   /** 备注 */
   remark: string;
-  /** 排序 */
+  /** 拖拽排序信息 */
   sort: number;
   /** 属性sql */
   sqlColumn: string;
   /** 状态[init, wait, success, invalid, cancel, invalid_wait, cancel_wait, reject] */
   status: string;
   /** 主键ID */
-  sysQueryId: number;
+  sysSelectId: number;
   /** 方案名(冗余字段) */
-  sysQueryTagCnRedundant: string;
+  tagCn: string;
   /** 类型(text, select, number, time, date, date-time, month, year) */
   type: string;
   /** 更新者 */
   updateBy: string;
   /** 更新时间 */
   updateTime: Date;
+  /** 宽度 */
+  width: string;
 }
 // 自动生成的代码块，尾行

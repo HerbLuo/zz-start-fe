@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import isequal from "lodash.isequal";
 
+/**
+ * 
+ * @param apiFunc 
+ * @param args 
+ * @returns [R, error]
+ *   初始化过程中的error
+ *   undefined 初始化未完毕
+ *   false 没有已知错误
+ *   unknown 在一般情况下为 {ok: -1, code: number, message: string}
+ */
 export function useData<A extends any[], R>(
   apiFunc: (...args: A) => Promise<R>,
   ...args: A

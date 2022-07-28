@@ -1,9 +1,9 @@
 import { TablePaginationConfig, TableProps } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { i18n as i18nGlobal } from "../../i18n/core";
-import { SysQueryDataReq } from "../../types/SysQueryDataReq";
-import { SysQueryDataRes } from "../../types/SysQueryDataRes";
 import { I18n } from "../../i18n/use-i18n";
+import { SysSelectDataReq } from "../../types/SysSelectDataReq";
+import { SysSelectDataRes } from "../../types/SysSelectDataRes";
 import { useStorageState } from "../hooks/use-storage-state";
 import { logger } from "../logger";
 import { userId } from "../site";
@@ -11,14 +11,14 @@ import { PromiseOr } from "../ts";
 
 const i18n = i18nGlobal.module("table");
 
-type ReplaceReq = (sysQueryDataReq: SysQueryDataReq) => SysQueryDataReq;
+type ReplaceReq = (sysQueryDataReq: SysSelectDataReq) => SysSelectDataReq;
 
 export type FetchData = (
   page: number, 
   pagesize: number, 
   replaceReq?: ReplaceReq,
   uSeeUGet?: boolean,
-) => Promise<SysQueryDataRes>;
+) => Promise<SysSelectDataRes>;
 
 interface UseTableOptions {
   pagesize?: number;
@@ -58,8 +58,8 @@ export function useTable<T extends {}>(
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState<number>();
   const [pagesize, setPagesize] = useStorageState(
-    `${tag}:${userId()}:table`,
-    options.pagesize || 10,
+    `${tag}:${userId()}:page-size`,
+    options.pagesize || 1,
   );
 
   const optionPagination = options.pagination ?? true;
@@ -91,6 +91,7 @@ export function useTable<T extends {}>(
       if (!cancel) {
         logger.debug(tag + " rows fetched.");
         setRows(table.rows as T[]);
+        setLoading(false);
       }
       return table.total;
     }).then(total => {
@@ -98,7 +99,6 @@ export function useTable<T extends {}>(
         logger.debug(tag + " total count fetched.");
         setTotal(total);
       }
-      setLoading(false);
     });
     return () => { 
       cancel = true;

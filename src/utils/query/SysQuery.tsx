@@ -2,8 +2,6 @@ import { Button, message } from "antd";
 import DownOutlined from "@ant-design/icons/DownOutlined";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { SysQueryElementEntity } from "../../types/SysQueryElementEntity";
-import { SysQueryUserPlan } from "../../types/SysQueryUserPlan";
 import { useStorageState } from "../hooks/use-storage-state";
 import isEqual from "lodash.isequal";
 import { styles } from "./SysQuery.style";
@@ -11,37 +9,40 @@ import { showConfirm } from "../dialog";
 import { i18nGlobal } from "../../i18n/core";
 import { freeze } from "../freeze";
 import { delay } from "../delay";
-import { SysQueryUserPlanItemEntity } from "../../types/SysQueryUserPlanItemEntity";
 import { nextIdNum } from "../random";
 import { SysQueryPlanBtn } from "./SysQueryPlanBtn";
 import { SysQueryQuickFilters } from "./SysQueryQuickFilters";
-import { SysQueryUserPlanRes } from "../../types/SysQueryUserPlanRes";
 import { userId } from "../site";
 import { cloneBean } from "../clone";
 import { I18n } from "../../i18n/use-i18n";
+import { SysSelectUserPlanRes } from "../../types/SysSelectUserPlanRes";
+import { SysSelectUserPlan } from "../../types/SysSelectUserPlan";
+import { SysSelectElementEntity } from "../../types/SysSelectElementEntity";
+import { SysSelectUserPlanItemEntity } from "../../types/SysSelectUserPlanItemEntity";
 
 const i18n = i18nGlobal.module("query");
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 interface SysQueryProps {
-  tag: string;
-  serverUserPlan: SysQueryUserPlanRes | undefined;
-  activePlanRef: React.MutableRefObject<SysQueryUserPlan | undefined>;
-  setActivePlanForFetch: SetState<SysQueryUserPlan | undefined>;
+  pageTag: string | undefined;
+  serverUserPlan: SysSelectUserPlanRes | undefined;
+  activePlanRef: React.MutableRefObject<SysSelectUserPlan | undefined>;
+  setActivePlanForFetch: SetState<SysSelectUserPlan | undefined>;
 }
 
 export function SysQuery(props: SysQueryProps) {
-  const { tag, serverUserPlan, activePlanRef, setActivePlanForFetch } = props;
+  const { pageTag, serverUserPlan, activePlanRef, setActivePlanForFetch } = props;
+  const tag4db = pageTag || "loading";
 
-  const [plans, setPlans] = useState<SysQueryUserPlan[]>();
-  const [elements, setElements] = useState<SysQueryElementEntity[]>();
+  const [plans, setPlans] = useState<SysSelectUserPlan[]>();
+  const [elements, setElements] = useState<SysSelectElementEntity[]>();
   const [activePlanId, setActivePlanId] = useStorageState<number | null>(
-    `${tag}:${userId()}:active-plan`,
+    `${tag4db}:${userId()}:active-plan`,
     null,
   );
   const serverPlanRef = useRef(serverUserPlan?.plans);
   const [editing, setEditing] = useState(false);
-  const [more, setMore] = useStorageState(`${tag}:${userId()}:more`, false);
+  const [more, setMore] = useStorageState(`${tag4db}:${userId()}:more`, false);
   const activePlan = plans?.find(plan => plan.plan.id === activePlanId);
   activePlanRef.current = activePlan;
 
@@ -56,7 +57,7 @@ export function SysQuery(props: SysQueryProps) {
   }, [serverUserPlan]);
 
   const setActivePlan = useCallback((
-    newPlan: SysQueryUserPlan | ((plan: SysQueryUserPlan) => SysQueryUserPlan)
+    newPlan: SysSelectUserPlan | ((p: SysSelectUserPlan) => SysSelectUserPlan)
   ) => {
     setPlans(plans => plans?.map(plan => {
       if (plan.plan.id === activePlanId) {
@@ -134,7 +135,7 @@ export function SysQuery(props: SysQueryProps) {
         ...plan, 
         items: [
           ...plan.items, 
-          { id: nextIdNum() } as SysQueryUserPlanItemEntity
+          { id: nextIdNum() } as SysSelectUserPlanItemEntity
         ]
       };
     })
