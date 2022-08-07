@@ -21,12 +21,13 @@ interface Props {
   onChange: (options: SortableCheckboxOption[]) => void;
 }
 
-const DragHandleIconStyle: React.CSSProperties = {
+const DragHandleIconStyle: (show: boolean) => React.CSSProperties = (show) => ({
   margin: "0 8px 0 -2px", 
   color: "#666", 
   cursor: "move", 
   fontSize: 11, 
-};
+  ...(show ? {} : {opacity: 0, pointerEvents: "none"}),
+});
 const ulStyle: React.CSSProperties = {
   margin: 0,
   padding: 0,
@@ -36,17 +37,18 @@ const liStyle: React.CSSProperties = {
   backgroundColor: "white",
   listStyle: "none",
 };
-const DragHandle = SortableHandle(() => (
+type HandleProps = { show: boolean };
+const DragHandle = SortableHandle<HandleProps>((props: HandleProps) => (
   <Tooltip title="拖拽排序">
-    <span style={DragHandleIconStyle}>
+    <span style={DragHandleIconStyle(props.show)}>
       <NumberOutlined /> 
     </span>
   </Tooltip>
 ));
-type ItemProps = CheckboxProps & { checkable?: boolean };
+type ItemProps = CheckboxProps & { checkable?: boolean, showHandle: boolean };
 const Item = SortableElement<ItemProps>((props: ItemProps) => (
   <li style={liStyle}>
-    <DragHandle />
+    <DragHandle show={props.showHandle}/>
     <Checkbox {...props} disabled={!props.checkable} />
   </li>
 ));
@@ -71,6 +73,7 @@ export function SortableCheckboxGroup(props: Props) {
       index={i} 
       checked={checked} 
       disabled={!sortable}
+      showHandle={!!sortable}
       checkable={checkable}
       onChange={(e) => {
         const checked = e.target.checked;

@@ -1,6 +1,6 @@
 import SettingOutlined from "@ant-design/icons/SettingOutlined";
 import { Button, Popover } from "antd";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { ColumnType } from "antd/lib/table";
 import { _logger } from "../logger";
 import { SortableCheckboxGroup, SortableCheckboxOption } from "../antd-pro/sortable-checkbox-group";
@@ -23,17 +23,26 @@ export function useColumns<T extends {}>(
   serverPlan: SysSpUsrPlanRes | undefined,
   /** 会根据title 或 dataIndex与服务器中的列配置合并。 */
   mergers?: Mergers<T>,
-  /** 指定字段的默认排序 */
-  reorder?: string,
 ): UseColumnsResult<T> {
-  const serverColumns = useMemo<ColumnType<T>[]>(() => [
-    { title: "字典编号", dataIndex: "id" },
-    { title: "字典名称", dataIndex: "name" },
-    { title: "字典类型", dataIndex: "type" },
-    { title: "状态", dataIndex: "status" },
-    { title: "创建时间", dataIndex: "create_time" },
-  ], []);
+  const serverColumns = useMemo<ColumnType<T>[] | undefined>(() => {
+    if (!serverPlan) {
+      return
+    }
+    const sortedServerCols = serverPlan.columns.sort((a, b) => a.sort - b.sort);
+    const formattedColumns: ColumnType<T>[] = [];
+    for (const column of sortedServerCols) {
+      const { render, fixed, type, sort, ...others } = column;
+      formattedColumns.push({
+        ...(fixed ? { fixed: fixed as "left" | "right" } : {}),
+        ...others,
+      });
+    }
+    return formattedColumns;
+  }, [serverPlan]);
   const columns = useMemo(() => {
+    if (!serverColumns) {
+      return [];
+    }
     const mergedColumns = [...serverColumns];
     if (!mergers?.length) {
       return mergedColumns;
@@ -49,7 +58,6 @@ export function useColumns<T extends {}>(
       }
       const oldColumnIndex = serverColumns
         .findIndex(col => col.title === title || col.dataIndex === dataIndex);
-        console.log("index-", oldColumnIndex);
       if (oldColumnIndex >= 0) {
         const oldColumn = mergedColumns[oldColumnIndex];
         mergedColumns.splice(oldColumnIndex, 1, {...oldColumn, ...merger});
@@ -66,12 +74,15 @@ export function useColumns<T extends {}>(
         label: col.title?.toString() || "t",
         value: col.dataIndex + "",
         checked: true,
-        sortable: true,
+        sortable: col.fixed ? false : true,
         checkable: true,
       };
     }) || [];
   }, [columns]);
   const onChange = useCallback((options: SortableCheckboxOption[]) => {
+    
+    
+    console.log(options);
     // setColumns();
   }, []);
 
@@ -88,5 +99,5 @@ export function useColumns<T extends {}>(
     </Popover>
   );
 
-  return { el, columns: serverColumns };
+  return { el, columns };
 }

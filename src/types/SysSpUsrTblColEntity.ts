@@ -1,5 +1,5 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<6cce4c184ca9e976d0fa98e8064dea4bb1515220e910d89864c7d6a52e158eb6>HASH#
+// 禁止修改 #HASH<e4f47aa645d9b6e1e395d6a722c7a49ef68f0642e2e5afea6cce747a438e59cc>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
@@ -20,10 +20,10 @@ export interface SysSpUsrTblColEntity {
   hidden: boolean;
   /** ID */
   id: number;
-  /** asc, desc */
-  orderByColumn: string;
   /** 存在多个order_by字段时的先后顺序 */
   orderByIndex: number;
+  /** asc, desc */
+  orderBy_column: string;
   /** page tag */
   pageTag: string;
   /** 备注 */

@@ -1,5 +1,5 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<151a6f4ef7abd53565526b70351aaa2ca0cf83b6f4a9d9c3fce9badc19e24796>HASH#
+// 禁止修改 #HASH<0e5828be7007f5bfbfcf3e74e533e658d19672173b35a758037f6f01ccccbf16>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
@@ -9,7 +9,7 @@ export interface SysSpUsrPlanEntity {
   /** 创建时间 */
   createTime: Date;
   /** 是否为默认方案 */
-  default: boolean;
+  default_column: boolean;
   /** 删除标志 */
   deleted: boolean;
   /** ID */
@@ -19,7 +19,7 @@ export interface SysSpUsrPlanEntity {
   /** page tag */
   pageTag: string;
   /** 只读（针对公用方案, 只能拷贝不能修改） */
-  public: boolean;
+  public_column: boolean;
   /** 备注 */
   remark: string;
   /** 排序 */

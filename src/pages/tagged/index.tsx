@@ -2,7 +2,7 @@ import SyncOutlined from "@ant-design/icons/SyncOutlined";
 import ExportOutlined from "@ant-design/icons/DeliveredProcedureOutlined";
 import { useQuery } from "../../utils/query";
 import { useTable } from "../../utils/table";
-import { useColumns } from "../../utils/table/use-columns";
+import { Mergers, useColumns } from "../../utils/table/use-columns";
 import { Button, Table } from "antd";
 import { useTableSelection } from "../../utils/table/use-table-selection";
 import { I18n } from "../../i18n/use-i18n";
@@ -30,10 +30,12 @@ export default function TaggedPage() {
   const { rowSelection } = useTableSelection<number, T>();
   // 使用查询方案
   const { el, fetchData } = useQuery(serverPlan);
-  // 获取表格列配置
-  const { el: colCfgEl, columns } = useColumns<T>(serverPlan, useMemo(() => [
+  // 额外的列
+  const columnMergers: Mergers<T> = useMemo<Mergers<T>>(() => [
     { title: "操作", fixed: "right" },
-  ], []));
+  ], []);
+  // 获取表格列配置
+  const { el: colCfgEl, columns } = useColumns<T>(serverPlan, columnMergers);
   // 生成表格数据及操作方法
   const { rows, loading, pagination, refresh } = useTable(pageTag, fetchData); 
 

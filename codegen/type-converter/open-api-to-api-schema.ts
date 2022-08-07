@@ -1,4 +1,4 @@
-import { OpenApi3, HttpMethods, OpenApi3Operation, OpenApi3RequestBody, OpenApi3Reference, OpenApi3ParameterSchemaMode, OpenApi3Parameter } from "../type/open-api";
+import { OpenApi3, HttpMethods, OpenApi3Operation, OpenApi3RequestBody, OpenApi3Schema, OpenApi3Reference, OpenApi3ParameterSchemaMode, OpenApi3Parameter } from "../type/open-api";
 import { ApiSchema, ApiSchemaOperation, ApiSchemaJsonBody, ApiSchemaResponse, ApiSchemaParameter, ApiMethods } from "../type/schema.api";
 import { dash_case2camelCase } from "../utils/camelCase";
 import { ZzTypeSchemas } from "./open-api-to-type-schema";
@@ -15,6 +15,10 @@ function areRequestBody(requestBody: OpenApi3RequestBody | OpenApi3Reference): r
 
 function areRef(obj: any): obj is OpenApi3Reference {
   return !!(obj as OpenApi3Reference)?.$ref;
+}
+
+function areArraySchema(obj: any): obj is OpenApi3Schema<"array"> {
+  return !!((obj as OpenApi3Schema)?.type === "array" && (obj as OpenApi3Schema)?.items);
 }
 
 function areSchemaMode(parameter: OpenApi3Parameter): parameter is OpenApi3ParameterSchemaMode {
@@ -105,7 +109,18 @@ export function openApiToApiSchemas(openApi: OpenApi3, typeSchemas: ZzTypeSchema
           console.warn("不支持的 request body");
         } else {
           const schema = jsonRequestBody?.schema;
-          if (areRef(schema)) {
+          if (areArraySchema(schema)) {
+            if (areRef(schema.items)) {
+              const jsType = openApi3ReferenceToTsType(schema.items, typeSchemas);
+              jsonBody = {
+                type: jsType.type + "[]",
+                name: "body",
+              };
+              for (const dep of jsType.deps) {
+                depSet.add(dep);
+              }
+            }
+          } else if (areRef(schema)) {
             const jsType = openApi3ReferenceToTsType(schema, typeSchemas);
             jsonBody = {
               type: jsType.type,
