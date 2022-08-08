@@ -1,16 +1,24 @@
 import SettingOutlined from "@ant-design/icons/SettingOutlined";
 import { Button, Popover } from "antd";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ColumnType } from "antd/lib/table";
 import { _logger } from "../logger";
-import { SortableCheckboxGroup, SortableCheckboxOption } from "../antd-pro/sortable-checkbox-group";
+import { 
+  SortableCheckboxGroup, 
+  SortableCheckboxOption 
+} from "../antd-pro/sortable-checkbox-group";
 import { SysSpUsrPlanRes } from "../../types/SysSpUsrPlanRes";
+import { freeze } from "../freeze";
+import { sysSelectApi } from "../../api/sys-select-api";
+import { SysSpUsrTblColEntity } from "../../types/SysSpUsrTblColEntity";
 
 const logger = _logger(import.meta.url);
 
 type CouldMerge<T> = ColumnType<T> & {
   before?: string;
   after?: string;
+  hidden?: boolean;
+  sort?: number;
 };
 export type Mergers<T> = Array<ColumnType<T> & CouldMerge<T>>;
 
@@ -20,29 +28,20 @@ export interface UseColumnsResult<T> {
 }
 
 export function useColumns<T extends {}>(
+  pageTag: string,
   serverPlan: SysSpUsrPlanRes | undefined,
   /** 会根据title 或 dataIndex与服务器中的列配置合并。 */
   mergers?: Mergers<T>,
 ): UseColumnsResult<T> {
-  const serverColumns = useMemo<ColumnType<T>[] | undefined>(() => {
+  const [serverColumns, setServerColumns] = useState<CouldMerge<T>[]>([]);
+  useEffect(() => {
     if (!serverPlan) {
-      return
+      return;
     }
-    const sortedServerCols = serverPlan.columns.sort((a, b) => a.sort - b.sort);
-    const formattedColumns: ColumnType<T>[] = [];
-    for (const column of sortedServerCols) {
-      const { render, fixed, type, sort, ...others } = column;
-      formattedColumns.push({
-        ...(fixed ? { fixed: fixed as "left" | "right" } : {}),
-        ...others,
-      });
-    }
-    return formattedColumns;
+    setServerColumns(serverColumnToAntColumn(serverPlan.columns));
   }, [serverPlan]);
-  const columns = useMemo(() => {
-    if (!serverColumns) {
-      return [];
-    }
+
+  const mergedColumns = useMemo(() => {
     const mergedColumns = [...serverColumns];
     if (!mergers?.length) {
       return mergedColumns;
@@ -69,22 +68,17 @@ export function useColumns<T extends {}>(
   }, [serverColumns, mergers]);
   
   const options: SortableCheckboxOption[] = useMemo(() => {
-    return columns?.map(col => {
-      return {
-        label: col.title?.toString() || "t",
-        value: col.dataIndex + "",
-        checked: true,
-        sortable: col.fixed ? false : true,
-        checkable: true,
-      };
-    }) || [];
-  }, [columns]);
-  const onChange = useCallback((options: SortableCheckboxOption[]) => {
-    
-    
-    console.log(options);
-    // setColumns();
-  }, []);
+    return mergedColumns ? antColumnsToCheckboxOptions(mergedColumns) : [];
+  }, [mergedColumns]);
+  const onChange = useCallback(async (options: SortableCheckboxOption[]) => {
+    freeze(true);
+    const reorderedColumns = reorderAndReHide(options, mergedColumns);
+    const userColumns = checkboxOptionsToUsrCols(pageTag, reorderedColumns);
+    await sysSelectApi.saveUserColumns(userColumns);
+    console.log(reorderedColumns);
+    setServerColumns(reorderedColumns);
+    freeze(false);
+  }, [pageTag, mergedColumns]);
 
   const content = (
     <SortableCheckboxGroup
@@ -99,5 +93,73 @@ export function useColumns<T extends {}>(
     </Popover>
   );
 
+  const columns = useMemo(() => {
+    return mergedColumns.filter(col => !col.hidden);
+  }, [mergedColumns]);
+
   return { el, columns };
+}
+
+function serverColumnToAntColumn<T>(
+  serverColumns: SysSpUsrTblColEntity[]
+): CouldMerge<T>[] {
+  const sortedServerCols = serverColumns.sort((a, b) => a.sort - b.sort);
+  const formattedColumns: ColumnType<T>[] = [];
+  for (const column of sortedServerCols) {
+    const { render, fixed, type, sort, ...others } = column;
+    formattedColumns.push({
+      ...(fixed ? { fixed: fixed as "left" | "right" } : {}),
+      ...others,
+    });
+  }
+  return formattedColumns;
+}
+
+function antColumnsToCheckboxOptions<T>(
+  antColumns: CouldMerge<T>[]
+): SortableCheckboxOption[] {
+  return antColumns.map(col => {
+    return {
+      label: col.title?.toString() || "?",
+      value: col.dataIndex + "",
+      checked: !col.hidden,
+      sortable: col.fixed ? false : true,
+      checkable: true,
+    };
+  });
+}
+
+function checkboxOptionsToUsrCols<T>(
+  pageTag: string,
+  reorderedColumns: CouldMerge<T>[],
+): SysSpUsrTblColEntity[] {
+  return reorderedColumns.map(col => {
+    const usrCol: Partial<SysSpUsrTblColEntity> = {
+      ...col, 
+      render: undefined,
+      width: undefined,
+      title: col.title?.toString(),
+      fixed: col.fixed ? (col.fixed === "left" ? "left" : "right") : undefined,
+      dataIndex: col.dataIndex?.toString(),
+      pageTag,
+    };
+    return usrCol as SysSpUsrTblColEntity;
+  });
+}
+
+function reorderAndReHide<T>(
+  options: SortableCheckboxOption[],
+  columns: CouldMerge<T>[],
+): CouldMerge<T>[] {
+  for (const column of columns) {
+    const optIndex = options.findIndex(opt => 
+      opt.label === column.title?.toString()
+    );
+    const opt = options[optIndex];
+    column.sort = (optIndex + 1) * 10000;
+    column.hidden = !opt?.checked;
+  }
+  return columns.sort((a, b) => 
+    (a.sort || Number.MAX_VALUE) - (b.sort || Number.MAX_VALUE)
+  );
 }

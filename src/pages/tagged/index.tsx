@@ -35,7 +35,7 @@ export default function TaggedPage() {
     { title: "操作", fixed: "right" },
   ], []);
   // 获取表格列配置
-  const { el: colCfgEl, columns } = useColumns<T>(serverPlan, columnMergers);
+  const { el: colCfgEl, columns } = useColumns<T>(pageTag, serverPlan, columnMergers);
   // 生成表格数据及操作方法
   const { rows, loading, pagination, refresh } = useTable(pageTag, fetchData); 
 
