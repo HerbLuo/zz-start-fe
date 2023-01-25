@@ -20,6 +20,7 @@ export default defineConfig({
         manualChunks: {
           react: ["react", "react-dom", "react-router-dom"],
           antd: ["antd"],
+          lodash: ["lodash-es"],
         },
         chunkFileNames(chunkInfo) {
           const { name, facadeModuleId } = chunkInfo;

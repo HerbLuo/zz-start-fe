@@ -3,7 +3,7 @@ import DownOutlined from "@ant-design/icons/DownOutlined";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useStorageState } from "../hooks/use-storage-state";
-import isEqual from "lodash.isequal";
+import { isEqual } from "lodash-es";
 import { styles } from "./SysQuery.style";
 import { confirm } from "../notification";
 import { i18nGlobal } from "../../i18n/core";

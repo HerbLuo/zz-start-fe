@@ -1,12 +1,13 @@
-import "./theme/antd.css";
 import "./index.css"
 import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes, useParams } from 'react-router-dom';
 import Loading from "./pages/loading";
 import zhCN from "antd/es/locale/zh_CN";
+import dayjs from 'dayjs';
 import { ConfigProvider } from "antd";
 import { currentLang } from "./i18n/core.lang";
 import { logger } from "./utils/logger";
+import { zzTheme } from "./theme/zz-theme";
 
 function LazyPage({ page }: { page?: string }) {
   const params = useParams();
@@ -46,6 +47,8 @@ function WithI18nApp() {
       import(`../node_modules/antd/es/locale/${currentLang}.js`).then(m => {
         setAntdLang(m);
       });
+    } else {
+      dayjs.locale('zh-cn');
     }
   }, [areZhCN])
 
@@ -53,7 +56,7 @@ function WithI18nApp() {
     return null;
   }
   return (
-    <ConfigProvider locale={areZhCN ? zhCN : antdLang}>
+    <ConfigProvider locale={areZhCN ? zhCN : antdLang} theme={zzTheme}>
       <App/>
     </ConfigProvider>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import isequal from "lodash.isequal";
+import { isEqual } from "lodash-es";
 
 /**
  * 
@@ -39,7 +39,7 @@ export function useData<A extends any[], R>(
 
 function useArgs<A extends any[]>(args: A): A {
   const argsRef = useRef<A>();
-  if (!isequal(argsRef.current, args)) {
+  if (!isEqual(argsRef.current, args)) {
     argsRef.current = args;
   }
   return argsRef.current as A;
