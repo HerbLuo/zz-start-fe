@@ -9,12 +9,13 @@ import {
 } from "../antd-pro/sortable-checkbox-group";
 import { SysSpUsrPlanRes } from "../../types/SysSpUsrPlanRes";
 import { freeze } from "../freeze";
-import { sysSelectApi } from "../../api/sys-select-api";
+import { sysSearchPlanApi } from "../../api/sys-search-plan-api";
 import { SysSpUsrTblColEntity } from "../../types/SysSpUsrTblColEntity";
+import { serverColumnToAntColumn } from "./use-columns-server-column-to-ant-column";
 
 const logger = _logger(import.meta.url);
 
-type CouldMerge<T> = ColumnType<T> & {
+export type CouldMerge<T> = ColumnType<T> & {
   before?: string;
   after?: string;
   hidden?: boolean;
@@ -74,7 +75,7 @@ export function useColumns<T extends {}>(
     freeze(true);
     const reorderedColumns = reorderAndReHide(options, mergedColumns);
     const userColumns = checkboxOptionsToUsrCols(pageTag, reorderedColumns);
-    await sysSelectApi.saveUserColumns(userColumns);
+    await sysSearchPlanApi.saveUserColumns(userColumns);
     console.log(reorderedColumns);
     setServerColumns(reorderedColumns);
     freeze(false);
@@ -98,21 +99,6 @@ export function useColumns<T extends {}>(
   }, [mergedColumns]);
 
   return { el, columns };
-}
-
-function serverColumnToAntColumn<T>(
-  serverColumns: SysSpUsrTblColEntity[]
-): CouldMerge<T>[] {
-  const sortedServerCols = serverColumns.sort((a, b) => a.sort - b.sort);
-  const formattedColumns: ColumnType<T>[] = [];
-  for (const column of sortedServerCols) {
-    const { render, fixed, type, sort, ...others } = column;
-    formattedColumns.push({
-      ...(fixed ? { fixed: fixed as "left" | "right" } : {}),
-      ...others,
-    });
-  }
-  return formattedColumns;
 }
 
 function antColumnsToCheckboxOptions<T>(

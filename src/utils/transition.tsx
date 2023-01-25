@@ -68,7 +68,7 @@ export function FadeInOut(props: Props): JSX.Element | null {
     transition: (styleOld?.transition || "") + 
       `opacity ${duration}s cubic-bezier(0.645, 0.045, 0.355, 1)`,
   };
-  return cloneElement(children, { style });
+  return cloneElement(children as React.ReactPortal | React.ReactElement, { style });
 }
 
 export const FadeIn = memo((props: Omit<Props, "in" | "out">) => 

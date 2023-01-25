@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { sysSelectApi } from "../../api/sys-select-api";
+import { sysSearchPlanApi } from "../../api/sys-search-plan-api";
 import { SysSpDataReq } from "../../types/SysSpDataReq";
 import { SysSpDataRes } from "../../types/SysSpDataRes";
 import { SysSpUsrPlan } from "../../types/SysSpUsrPlan";
@@ -57,7 +57,7 @@ export function useQuery(serverUserPlan?: SysSpUsrPlanRes): UseQueryResult {
       conditions: [],
       orderBys: [],
     };
-    return sysSelectApi.getData(replaceReq ? replaceReq(req) : req);
+    return sysSearchPlanApi.getData(replaceReq ? replaceReq(req) : req);
   } : undefined, [pageTag, planForFetch]);
 
   return {

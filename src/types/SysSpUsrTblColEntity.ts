@@ -1,5 +1,5 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<e4f47aa645d9b6e1e395d6a722c7a49ef68f0642e2e5afea6cce747a438e59cc>HASH#
+// 禁止修改 #HASH<256934de6ea565ac59f8baae5e917670eac3d83befdd86a360b93db21337625b>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
@@ -12,6 +12,8 @@ export interface SysSpUsrTblColEntity {
   css: string;
   /** 数据键名 */
   dataIndex: string;
+  /** e.g. `YYYY-MM-DD HH:mm:ss`. see: https://day.js.org/docs/en/parse/string-format */
+  datetimeFormat: string;
   /** 删除标志 */
   deleted: boolean;
   /** 固定列，不允许排序 right, left */
@@ -20,10 +22,10 @@ export interface SysSpUsrTblColEntity {
   hidden: boolean;
   /** ID */
   id: number;
+  /**  */
+  orderBy: string;
   /** 存在多个order_by字段时的先后顺序 */
   orderByIndex: number;
-  /** asc, desc */
-  orderBy_column: string;
   /** page tag */
   pageTag: string;
   /** 备注 */
@@ -40,7 +42,7 @@ export interface SysSpUsrTblColEntity {
   sysUserId: number;
   /** 列名 */
   title: string;
-  /** 列类型(text, select, number, money, time, date, date-time, month, year) */
+  /** 列类型(text, select, number, money, time, date, datetime, month, year) */
   type: string;
   /** 更新者 */
   updateBy: string;

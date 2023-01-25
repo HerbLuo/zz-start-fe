@@ -1,4 +1,4 @@
-import { showWarn } from "../utils/dialog";
+import { warnDialog, warnMessage } from "../utils/notification";
 import { I18nString, i18n } from "../i18n/core";
 import { autoLogin, goToLoginPage } from "./auto-login";
 import { TokenExpired, HTTP_STATUS_UNAUTHORIZED, TokenWrong } from "./constants";
@@ -23,6 +23,7 @@ export const defaultInit: RequestInit = {
 export interface RequestOptions {
   autoLoginByRefreshToken?: boolean;
   alert?: boolean;
+  warningOnUnknownServerError?: boolean;
 }
 
 const textDecoder = new TextDecoder("utf-8");
@@ -38,7 +39,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   }
 
   const response = await fetch(url, init).catch(async e => {
-    throw await showWarn(i18n("请求失败, 可能是网络原因。"), e)
+    throw await warnDialog(i18n("请求失败, 可能是网络原因。"), e)
   });
   let receivedResults: string[] = [];
   let reader: ReadableStreamDefaultReader | null = null;
@@ -48,7 +49,7 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   if (isNdJson) {
     const stream = response.body;
     if (!stream) {
-      throw await showWarn(i18n("application/x-ndjson类型的响应体为空。"));
+      throw await warnDialog(i18n("application/x-ndjson类型的响应体为空。"));
     }
     reader = stream.getReader();
     const res = await reader.read();
@@ -82,11 +83,11 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   if ((parsedJsonResponseBody as { ok: unknown }).ok === -1) {
     const data = (parsedJsonResponseBody as { data: void | { serial: string, code: number, message?: string, alert?: I18nString } }).data;
     if (!data || !data.serial || !data.code) {
-      throw await showWarn(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了异常结果(ok=-1)，但异常信息无法解析。", data);
+      throw await warnDialog(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了异常结果(ok=-1)，但异常信息无法解析。", data);
     }
     if (data.alert) {
-      if (options.alert) {
-        throw await showWarn(data.alert, "[ALERT]服务器返回了一个alert", data);
+      if (options.alert !== false) {
+        throw await warnDialog(data.alert, "[ALERT]服务器返回了一个alert", data);
       } else {
         logger.log("[ALERT]服务器返回了一个alert", data);
         throw data;
@@ -103,8 +104,8 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
       goToLoginPage();
       throw new Error("需要登陆但未登陆");
     }
-    if (options.alert) {
-      throw await showWarn(i18n("服务器出了些问题, 尝试联系支持人员。"), "服务器返回了异常", data);
+    if (options.warningOnUnknownServerError !== false) {
+      throw await warnMessage(i18n("服务器出了些问题, 尝试联系支持人员。"), "服务器返回了异常", data);
     } else {
       logger.log("服务器返回了异常", data);
       throw data;
@@ -112,14 +113,14 @@ export async function request<T>(url: string, init?: RequestInit, options: Reque
   }
 
   // 返回了未知的JSON数据
-  throw await showWarn(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了未知的JSON数据", parsedJsonResponseBody);
+  throw await warnDialog(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了未知的JSON数据", parsedJsonResponseBody);
 }
 
 async function parseJson(json: string): Promise<{}> {
   try {
     return JSON.parse(json, javaBeanReviver);
   } catch (e) {
-    throw await showWarn(i18n("解析JSON失败, 可能是网络不稳定, 尝试刷新。"), e, "text: ", json);
+    throw await warnDialog(i18n("解析JSON失败, 可能是网络不稳定, 尝试刷新。"), e, "text: ", json);
   }
 }
 
@@ -159,12 +160,12 @@ function mapPromise(data: {}, reader: ReadableStreamDefaultReader, receivedResul
     if (json.ok === -1) {
       const data = (json as { data: void | { serial: string, code: number, message?: string, alert?: I18nString } }).data;
       if (!data || !data.serial || !data.code) {
-        throw await showWarn(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了异常结果(ok=-1)，但异常信息无法解析。", data);
+        throw await warnDialog(i18n("服务器出了点小问题, 尝试联系支持人员。"), "服务器返回了异常结果(ok=-1)，但异常信息无法解析。", data);
       }
       if (data.alert) {
-        throw await showWarn(data.alert, "[ALERT]服务器返回了一个alert", data);
+        throw await warnDialog(data.alert, "[ALERT]服务器返回了一个alert", data);
       }
-      throw await showWarn(i18n("服务器出了些问题, 尝试联系支持人员。"), "服务器返回了异常", data);
+      throw await warnDialog(i18n("服务器出了些问题, 尝试联系支持人员。"), "服务器返回了异常", data);
     }
   }
 

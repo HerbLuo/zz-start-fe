@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useStorageState } from "../hooks/use-storage-state";
 import isEqual from "lodash.isequal";
 import { styles } from "./SysQuery.style";
-import { showConfirm } from "../dialog";
+import { confirm } from "../notification";
 import { i18nGlobal } from "../../i18n/core";
 import { freeze } from "../freeze";
 import { delay } from "../delay";
@@ -107,7 +107,7 @@ export function SysQuery(props: SysQueryProps) {
 
   const deletePlan = (planId: number) => async () => {
     const plan = plans?.find(p => p.plan.id === planId);
-    await showConfirm(i18n("确定删除方案：《{}》?", plan?.plan.name));
+    await confirm(i18n("确定删除方案：《{}》?", plan?.plan.name));
 
     freeze(true);
     await delay(3000);
@@ -148,7 +148,7 @@ export function SysQuery(props: SysQueryProps) {
   }, [activePlan, setActivePlanForFetch]);
 
   const reset = useCallback(async () => {
-    await showConfirm(i18n("确定重置该方案?"));
+    await confirm(i18n("确定重置该方案?"));
     const activePlanServer = serverPlanRef.current
       ?.find(({plan}) => plan.id === activePlanId);
       if (activePlanServer) {
@@ -158,7 +158,7 @@ export function SysQuery(props: SysQueryProps) {
   }, [activePlanId, setActivePlan]);
 
   const clear = async () => {
-    await showConfirm(i18n("确定清空该方案?"));
+    await confirm(i18n("确定清空该方案?"));
     setActivePlan(plan => ({ ...plan, items: [] }))
     message.success("清空成功");
   }

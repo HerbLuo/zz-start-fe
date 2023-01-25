@@ -12,7 +12,7 @@ import { PlanNotFound } from "../../api/constants";
 import NotFoundPage from "../not-found";
 import { useCallback, useMemo } from "react";
 import { useData } from "../../utils/hooks/use-data";
-import { sysSelectApi } from "../../api/sys-select-api";
+import { sysSearchPlanApi } from "../../api/sys-search-plan-api";
 
 type T = {};
 
@@ -24,7 +24,7 @@ export default function TaggedPage() {
 
   // 从服务器获取数据
   const [serverPlan, error] = useData(
-    sysSelectApi.getPlan, pageTag, { alert: false }
+    sysSearchPlanApi.getPlan, pageTag, { alert: false }
   );
   // 使用多选框
   const { rowSelection } = useTableSelection<number, T>();

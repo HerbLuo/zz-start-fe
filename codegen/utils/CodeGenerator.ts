@@ -19,7 +19,7 @@ export interface GeneratorTemplateConfig<T extends {}> {
   filename: (model: T) => string;
 }
 
-class Model<T> {
+class Model<T extends {}> {
   constructor(private readonly config: GeneratorTemplateConfig<T>, public readonly model: T) { }
 
   private targetFilepath: string | null = null;
@@ -45,7 +45,7 @@ export class CodeGenerator {
     return this;
   }
 
-  public add<T>(config: GeneratorTemplateConfig<T>): this {
+  public add<T extends {}>(config: GeneratorTemplateConfig<T>): this {
     this.configs.push(config);
     return this;
   }

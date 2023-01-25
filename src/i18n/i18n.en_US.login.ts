@@ -8,6 +8,6 @@ const i18n: I18nMessages<"login"> = {
   "密码": "Password",
   "用户名不能为空": "Username can not be empty.",
   "密码不能为空": "Password can not be empty.",
-};
+} as any;
 
 configI18n("en_US", "login", i18n);

@@ -1,5 +1,5 @@
 // 自动生成的代码块，首行
-// 禁止修改 #HASH<6da0e9022918f8c35559175325bf616dc45716bc77b53f186d00d7aaf8f034ce>HASH#
+// 禁止修改 #HASH<244c8ad1e2a8fd5825162c2a0e7e374d1c66df2b8c104d187ccd05090320dbed>HASH#
 // 如果该代码块被修改，下次执行生成操作时，则不会更新该代码块。
 // 如果修改了代码块，且希望重新生成，可以删除这几行注释，该文件会强制重新生成。
 
@@ -16,8 +16,8 @@ export interface SysSpEntity {
   id: number;
   /** 备注 */
   remark: string;
-  /** sql */
-  sql_column: string;
+  /**  */
+  sql: string;
   /** 状态[init, wait, success, invalid, cancel, invalid_wait, cancel_wait, reject] */
   status: string;
   /** 方案名(可用于查询，唯一) */

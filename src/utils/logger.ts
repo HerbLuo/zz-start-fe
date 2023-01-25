@@ -2,10 +2,10 @@ import { isValidElement } from "react";
 import { delay } from "./delay";
 import { LoggedError, TippedError } from "./errors";
 import { cursorQueryAndDelete } from "./indexeddb-helper";
-import { nextId } from "./random";
+import { nextGoodStr, nextId } from "./random";
 
 type OnLog = (log: string, level: Level) => void;
-export const throttedDuration = 3000;
+export const throttledDuration = 3000;
 const callbacks: OnLog[] = [];
 const throttledCallbacks: Array<(logs: string[]) => void> = [];
 
@@ -17,23 +17,46 @@ enum Level {
   error = "error",
 }
 
-type Log = (...args: any[]) => void;
-type Logger = { debug: Log; log: Log; info: Log; warn: Log; error: Log; }
-type LoggerEx = Logger & { await: Logger, args: Logger };
+type Log<R> = (...args: any[]) => R;
+type Logger<R> = { 
+  debug: Log<R>; 
+  log: Log<R>; 
+  info: Log<R>; 
+  warn: Log<R>; 
+  error: Log<R>; 
+}
+type LoggerE<R> = Logger<R> & { await: Logger<R>, args: Logger<R> };
+type LoggerEx = LoggerE<void> & { genId: LoggerE<string> };
 export const _logger = (sourceCodeUrl?: string): LoggerEx => {
+  const lateInitLogger = () => ({}) as Logger<any>;
   const logger: LoggerEx = {
-    args: {},
-    await: {},
-  } as any;
+    args: lateInitLogger(),
+    await: lateInitLogger(),
+    genId: {
+      args: lateInitLogger(),
+      await: lateInitLogger(),
+      ...(lateInitLogger()),
+    },
+    ...(lateInitLogger()),
+  };
 
-  const create = (logger: Logger, url?: string, opt?: CreateLoggerOptions) => 
-    Object.values(Level).forEach(level => {
+  const create = (
+    logger: Logger<unknown>, url?: string, opt?: CreateLoggerOptions
+  ) => {
+    const levels = Object.values(Level);
+    for (const level of levels) {
       logger[level] = createLogger(level, url, opt);
-    });
+    }
+  }
 
   create(logger, sourceCodeUrl);
+  create(logger.genId, sourceCodeUrl, { genId: true });
   create(logger.await, sourceCodeUrl, { awaitMode: true });
   create(logger.args, sourceCodeUrl, { awaitMode: true, argsMode: true });
+  create(logger.genId.await, sourceCodeUrl, { awaitMode: true, genId: true });
+  create(logger.genId.args, sourceCodeUrl, { 
+    awaitMode: true, argsMode: true, genId: true 
+  });
     
   return logger;
 };
@@ -117,7 +140,9 @@ function toLogMsg(obj: unknown, level: number = 0): string | GuessString {
       const promiseMsgs = Promise.all(msgs.map(async ([k, v]) => 
         `${k}: ${typeof v === "string" ? v : await v.value}`
       )).then(msgs => msgs.join(", "));
-      const promiseMsgsWithTimeout = Promise.race([promiseMsgs, delay(60 * 1000)]);
+      const promiseMsgsWithTimeout = Promise.race(
+        [promiseMsgs, delay(60 * 1000)]
+      );
 
       return {
         guess: `Object: Promise<${pid}>, resolving: {${guessMsgs}}`,
@@ -130,7 +155,8 @@ function toLogMsg(obj: unknown, level: number = 0): string | GuessString {
       }
     } else {
       const isBean = Reflect.getPrototypeOf(obj) === BeanProp;
-      return `${isBean ? "" : "Object: "}{${msgs.map(([k, v]) => `${k}: ${v}`).join(", ")}}`;
+      const prefix = isBean ? "" : "Object: ";
+      return `${prefix}{${msgs.map(([k, v]) => `${k}: ${v}`).join(", ")}}`;
     }
   }
   return str;
@@ -139,12 +165,13 @@ function toLogMsg(obj: unknown, level: number = 0): string | GuessString {
 interface CreateLoggerOptions {
   awaitMode?: boolean; 
   argsMode?: boolean;
+  genId?: boolean;
 }
 function createLogger(
   level: Level, 
   sourceCodeUrl?: string, 
-  { awaitMode, argsMode }: CreateLoggerOptions = {}
-): Log {
+  { awaitMode, argsMode, genId }: CreateLoggerOptions = {}
+): Log<unknown> {
   const module = sourceCodeUrl?.split("/src/").pop()?.replace(/\//g, ".");
 
   return function log(...msgs: any[]) {
@@ -154,6 +181,7 @@ function createLogger(
       case TippedError:
         return "TippedError";
     }
+    const id = genId ? nextGoodStr(8) : null;
     const DATE = formatDate(new Date());
     const LEVEL = level.toUpperCase().padEnd(5, " ");
     const module32LenMax = module
@@ -164,7 +192,8 @@ function createLogger(
     const MODULE = module32LenMax.padStart(32, " ");
 
     const logMsgs = (MSGS: string) => {
-      const msgStr = `${DATE} ${LEVEL} ${MODULE} - ${MSGS}`;
+      const LOG_ID = genId ? `LOG_ID<${id}> ` : "";
+      const msgStr = `${DATE} ${LEVEL} ${MODULE} - ${LOG_ID}${MSGS}`;
 
       if (callbacks.length <= 1) {
         console.warn(
@@ -182,12 +211,12 @@ function createLogger(
     if (argsMode) {
       const [first, ...others] = msgs;
       if (first instanceof Function) {
-        msgs = ["NAME", first.name, ...others];
+        msgs = ["FUNCTION_NAME:", first.name, ...others];
       } else if (msgs.length === 2 && typeof msgs[0] === "string") {
-        msgs = ["NAME", msgs[0], msgs[1]];
+        msgs = ["FUNCTION_NAME:", msgs[0], msgs[1]];
       } 
       const args = msgs.pop();
-      msgs.push("ARGUMENTS");
+      msgs.push("ARGUMENTS:");
       msgs.push(args);
     }
     const withGuessMSGS = msgs.map(m => toLogMsg(m));
@@ -214,6 +243,10 @@ function createLogger(
       }
     } else {
       logMsgs(withGuessMSGS.join(" "));
+    }
+
+    if (genId) {
+      return id;
     }
   };
 };
@@ -258,9 +291,15 @@ async function initDb() {
 
 export function colorfulConsole(msg: string, level: Level) {
   // "", '', ``
-  msg = msg.replace(/("[^"]*"|'[^']*'|`[^`]*`)/g, "%CsS%(color: green)$1%CsS%()");
+  msg = msg.replace(
+    /("[^"]*"|'[^']*'|`[^`]*`)/g, 
+    "%CsS%(color: green)$1%CsS%()"
+  );
   // true false
-  msg = msg.replace(/(true|false)([^a-zA-Z_]|$)/g, "%CsS%(color: blue)$1%CsS%()$2"); 
+  msg = msg.replace(
+    /(true|false)([^a-zA-Z_]|$)/g, 
+    "%CsS%(color: blue)$1%CsS%()$2"
+  ); 
   // TS, TSX, JS, JSX
   msg = msg.replace(
     /([a-zA-Z._$-]+\.[tj]sx?)([ \]>}])/g, 
@@ -268,12 +307,17 @@ export function colorfulConsole(msg: string, level: Level) {
   ); 
 
   msg = msg.replace(
-    /(NAME) /g,
+    /(LOG_ID)<([^>]+)> /g,
+    "%CsS%(color: darkcyan)$1%CsS%()%CsS%(color: gray)<%CsS%()%CsS%(color: darkcyan)$2%CsS%()%CsS%(color: gray)>%CsS%() "
+  );
+
+  msg = msg.replace(
+    /(FUNCTION_NAME:) /g,
     "%CsS%(color: mediumslateblue)$1 %CsS%()"
   );
 
   msg = msg.replace(
-    /(ARGUMENTS) /g,
+    /(ARGUMENTS:) (Object: )?/g,
     "%CsS%(color: mediumslateblue)$1 %CsS%()"
   );
 
@@ -284,7 +328,11 @@ export function colorfulConsole(msg: string, level: Level) {
     return "%TiME%";
   });
   // NUMBER
-  msg = msg.replace(/(?<![a-zA-Z\d_$])(-?\d+(\.\d+)?)(?![a-zA-Z\d_$])/g, "%CsS%(color: blue)$1%CsS%()");
+  msg = msg.replace(
+    // /(?<![a-zA-Z\d_$])(-?\d+(\.\d+)?)/g, 
+    /([^a-zA-Z0-9_$])(-?\d+(\.\d+)?)/g, 
+    "$1%CsS%(color: blue)$2%CsS%()"
+  );
   let i = 0;
   msg = msg.replace(/%TiME%/g, () => times[i++]);
 
@@ -355,7 +403,7 @@ async function main() {
       for (const callback of throttledCallbacks) {
         callback(data);
       }
-    }, throttedDuration);
+    }, throttledDuration);
   } 
 }
 // 执行主逻辑（将日志信息存放于indexedDB中），注意必须将这里的异常捕获，不然有无限递归的风险

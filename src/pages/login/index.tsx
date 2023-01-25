@@ -5,16 +5,23 @@ import { siteBasePath } from "../../utils/site";
 import { useInput } from "../../utils/hooks/dom";
 import { sysAccountApi } from "../../api/sys-account-api";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import { showWarn } from "../../utils/dialog";
+import { warnDialog } from "../../utils/notification";
 import { useI18n as useI18nGlobal } from "../../i18n/use-i18n";
 import { i18n as i18nGlobal } from "../../i18n/core";
-
-const i18n = i18nGlobal.module("login");
-const useI18n = useI18nGlobal.module("login");
+import { TippedError } from "../../utils/errors";
+import { _logger } from "../../utils/logger";
 
 const LOGGED_IN = "logged_in";
 
-function forwardToLoggedPage() {
+const i18n = i18nGlobal.module("login");
+const useI18n = useI18nGlobal.module("login");
+const logger = _logger(import.meta.url);
+
+async function forwardToLoggedPage() {
+  // await Promise.race([
+  //   confirm(i18n("已登陆，{}秒后自动跳转", 1)),
+  //   delay(1000),
+  // ]);
   const forward_to = new URL(window.location.href).searchParams.get("forward_to");
   window.history.replaceState(null, "", forward_to || (siteBasePath + "/"));
   window.location.reload();
@@ -31,6 +38,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (sessionStorage.getItem(LOGGED_IN) === "yes") {
+      logger.debug("sessionStorage <", LOGGED_IN, ": yes>");
       forwardToLoggedPage();
     }
   }, [])
@@ -47,16 +55,21 @@ export default function LoginPage() {
 
   const onLogin = useCallback(async () => {
     if (!username) {
-      throw await showWarn(i18n("用户名不能为空"));
+      throw await warnDialog(i18n("用户名不能为空"));
     }
     if (!password) {
-      throw await showWarn(i18n("密码不能为空"));
+      throw await warnDialog(i18n("密码不能为空"));
     }
 
     await sysAccountApi.loginByPwd({
       username,
       password,
       rememberMe,
+    }).catch(async e => {
+      if (e !== TippedError) {
+        await warnDialog(i18n("登陆失败，尝试联系技术人员。"), e)
+      }
+      throw e;
     });
     localStorage.setItem("remember_me", "yes");
     whenLoggedIn();

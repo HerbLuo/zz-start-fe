@@ -59,12 +59,12 @@ export function openApiToApiSchemas(openApi: OpenApi3, typeSchemas: ZzTypeSchema
       const operation = pathItemValue as OpenApi3Operation;
 
       const summary = operation.summary;
-      const tag = operation.tags?.find(tag => tag.startsWith("group(") && tag.endsWith(")"));
-      if (!tag) {
+      const groupInfo = operation.description;
+      if (!groupInfo) {
         console.warn("找不到接口所在组");
         continue;
       }
-      const group = tag.substring(6, tag.length - 1).replace(/-controller$/, "-api");
+      const group = groupInfo.replace(/-controller$/, "-api");
       const operationSchemas = operationsGrouped[group] ||= [];
 
       const operationName = operation.operationId?.replace(usingMethodReg, "") ?? "makeOperator";
