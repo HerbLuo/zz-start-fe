@@ -24,7 +24,7 @@ export default function TaggedPage() {
 
   // 从服务器获取数据
   const [serverPlan, error] = useData(
-    sysSearchPlanApi.getPlan, pageTag, { alert: false }
+    sysSearchPlanApi.getPlan, pageTag
   );
   // 使用多选框
   const { rowSelection } = useTableSelection<number, T>();

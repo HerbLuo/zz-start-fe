@@ -307,11 +307,6 @@ export function colorfulConsole(msg: string, level: Level) {
   ); 
 
   msg = msg.replace(
-    /(LOG_ID)<([^>]+)> /g,
-    "%CsS%(color: darkcyan)$1%CsS%()%CsS%(color: gray)<%CsS%()%CsS%(color: darkcyan)$2%CsS%()%CsS%(color: gray)>%CsS%() "
-  );
-
-  msg = msg.replace(
     /(FUNCTION_NAME:) /g,
     "%CsS%(color: mediumslateblue)$1 %CsS%()"
   );
@@ -330,11 +325,19 @@ export function colorfulConsole(msg: string, level: Level) {
   // NUMBER
   msg = msg.replace(
     // /(?<![a-zA-Z\d_$])(-?\d+(\.\d+)?)/g, 
-    /([^a-zA-Z0-9_$])(-?\d+(\.\d+)?)/g, 
-    "$1%CsS%(color: blue)$2%CsS%()"
+    /LOG_ID([^a-zA-Z0-9_$])(-?\d+(\.\d+)?)|([^a-zA-Z0-9_$])(-?\d+(\.\d+)?)/g, 
+    ($0, $1, $2, $3, $4, $5) => {
+      return $1 ? $0 : `${$4}%CsS%(color: blue)${$5}%CsS%()`
+    }
   );
   let i = 0;
   msg = msg.replace(/%TiME%/g, () => times[i++]);
+
+  // LOG ID
+  msg = msg.replace(
+    /(LOG_ID)<([^>]+)> /g,
+    "%CsS%(color: darkcyan)$1%CsS%()%CsS%(color: gray)<%CsS%()%CsS%(color: darkcyan)$2%CsS%()%CsS%(color: gray)>%CsS%() "
+  );
 
   // LEVEL
   for (const l of Object.values(Level)) {

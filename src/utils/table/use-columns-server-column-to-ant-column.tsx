@@ -3,6 +3,7 @@ import { SysSpUsrTblColEntity } from "../../types/SysSpUsrTblColEntity";
 import { renderDate, renderText } from "../antd-pro/renders";
 import { CouldMerge } from "./use-columns";
 
+// eslint-disable-next-line
 const _eval = eval;
 
 export function serverColumnToAntColumn<T>(

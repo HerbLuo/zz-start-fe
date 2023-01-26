@@ -65,7 +65,7 @@ export const confirm: Confirm = async function(title, content, opt = {}) {
   return confirmDefer.promise;
 }
 
-const warn = (dialog: boolean): Warn => async(alert, ...logs: any[]) => {
+const warn = (dialog: boolean): Warn => async (alert, ...logs: any[]) => {
   const displayLogId = logs.length > 0;
   const argsLogger = (displayLogId ? logger.genId : logger).args;
   const id = argsLogger.info(warn, { alert, logs });
