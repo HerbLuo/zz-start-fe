@@ -1,5 +1,5 @@
 import { TablePaginationConfig, TableProps } from "antd";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { SyntheticEvent, useCallback, useEffect, useState } from "react";
 import { i18n as i18nGlobal } from "../../i18n/core";
 import { I18n } from "../../i18n/use-i18n";
 import { SysSpDataReq } from "../../types/SysSpDataReq";
@@ -34,7 +34,7 @@ interface TableView<T> {
 export type SetTable<T> = React.Dispatch<React.SetStateAction<TableView<T>>>;
 
 export type Refresh<T> = (
-  data?: PromiseOr<Partial<T>>,
+  data?: PromiseOr<Partial<T>> | SyntheticEvent<any>,
   finder?: (a: T, b: Partial<T>) => boolean,
 ) => Promise<void>;
 
@@ -112,7 +112,7 @@ export function useTable<T extends {}>(
 
   // 刷新表格
   const refresh: Refresh<T> = useCallback(async (
-    data?: PromiseOr<Partial<T>>,
+    data?: PromiseOr<Partial<T>> | SyntheticEvent,
     finder = (a: T, b: Partial<T>) => (a as any).id === (b as any).id,
   ) => {
     if ((data as {nativeEvent?: unknown})?.nativeEvent instanceof Event) {
@@ -127,7 +127,7 @@ export function useTable<T extends {}>(
       loadData(true);
       return;
     }
-    const newData = await data;
+    const newData = (await data) as Partial<T>;
     const newRows = rows.map(row => {
       if (!finder(row, newData)) {
         return row;
